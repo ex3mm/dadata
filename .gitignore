@@ -1,0 +1,12 @@
+/vendor/
+/.phpunit.cache
+/.php-cs-fixer.cache
+/phpunit.xml
+/.idea/
+/.vscode/
+*.log
+.DS_Store
+/.kiro
+/.cursor
+todo.md
+/coverage

@@ -1,0 +1,24 @@
+{
+  "suggestions": [
+    {
+      "value": "test@example.com",
+      "unrestricted_value": "test@example.com",
+      "data": {
+        "local": "test",
+        "domain": "example.com",
+        "type": "PERSONAL",
+        "qc": 0
+      }
+    },
+    {
+      "value": "info@company.ru",
+      "unrestricted_value": "info@company.ru",
+      "data": {
+        "local": "info",
+        "domain": "company.ru",
+        "type": "CORPORATE",
+        "qc": 0
+      }
+    }
+  ]
+}

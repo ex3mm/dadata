@@ -1,0 +1,12 @@
+parameters:
+    level: 9
+    paths:
+        - src
+    phpVersion: 80500
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+

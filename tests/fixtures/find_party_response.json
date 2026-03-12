@@ -1,0 +1,161 @@
+{
+  "suggestions": [
+    {
+      "value": "ООО \"ЯНДЕКС\"",
+      "unrestricted_value": "ООО \"ЯНДЕКС\"",
+      "data": {
+        "kpp": "773401001",
+        "capital": 118000000,
+        "management": {
+          "name": "Волож Аркадий Юрьевич",
+          "post": "ГЕНЕРАЛЬНЫЙ ДИРЕКТОР"
+        },
+        "founders": [
+          {
+            "ogrn": "1027700229193",
+            "inn": "7736207543",
+            "name": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЯНДЕКС\"",
+            "share": {
+              "type": "PERCENT",
+              "value": 100
+            }
+          }
+        ],
+        "managers": [
+          {
+            "inn": "773662366234",
+            "fio": {
+              "surname": "Волож",
+              "name": "Аркадий",
+              "patronymic": "Юрьевич"
+            },
+            "post": "ГЕНЕРАЛЬНЫЙ ДИРЕКТОР",
+            "hid": "e1e2e3e4e5e6e7e8e9e0e1e2e3e4e5e6"
+          }
+        ],
+        "branch_type": "MAIN",
+        "branch_count": 7,
+        "source": null,
+        "qc": null,
+        "hid": "d2d4e3e4f5e6e7e8e9e0e1e2e3e4e5e6",
+        "type": "LEGAL",
+        "state": {
+          "status": "ACTIVE",
+          "code": 0,
+          "actuality_date": 1609459200000,
+          "registration_date": 1009843200000,
+          "liquidation_date": null
+        },
+        "opf": {
+          "type": "2014",
+          "code": "12300",
+          "full": "Общество с ограниченной ответственностью",
+          "short": "ООО"
+        },
+        "name": {
+          "full_with_opf": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЯНДЕКС\"",
+          "short_with_opf": "ООО \"ЯНДЕКС\"",
+          "latin": "YANDEX LLC",
+          "full": "ЯНДЕКС",
+          "short": "ЯНДЕКС"
+        },
+        "inn": "7736207543",
+        "ogrn": "1027700229193",
+        "ogrn_date": 1009843200000,
+        "okpo": "73598216",
+        "okato": "45286590000",
+        "oktmo": "45375000",
+        "okved": "62.01",
+        "okveds": [
+          {
+            "main": true,
+            "type": "2014",
+            "code": "62.01",
+            "name": "Разработка компьютерного программного обеспечения"
+          },
+          {
+            "main": false,
+            "type": "2014",
+            "code": "62.02",
+            "name": "Деятельность консультативная и работы в области компьютерных технологий"
+          }
+        ],
+        "authorities": {
+          "fts_registration": {
+            "type": "FEDERAL_TAX_SERVICE",
+            "code": "7736",
+            "name": "Инспекция ФНС России № 36 по г. Москве",
+            "address": "г Москва, Дмитровское ш, д 157"
+          },
+          "fts_report": {
+            "type": "FEDERAL_TAX_SERVICE",
+            "code": "7736",
+            "name": "Инспекция ФНС России № 36 по г. Москве"
+          },
+          "pf": {
+            "type": "PENSION_FUND",
+            "code": "087605",
+            "name": "ГУ - Главное Управление ПФР № 6 по г. Москве и Московской области"
+          },
+          "sif": {
+            "type": "SOCIAL_INSURANCE_FUND",
+            "code": "7736",
+            "name": "Филиал № 36 ГУ - Московского регионального отделения Фонда социального страхования РФ"
+          }
+        },
+        "documents": {
+          "fts_registration": {
+            "type": "FTS_REGISTRATION",
+            "series": "77",
+            "number": "007568846",
+            "issue_date": 1009843200000,
+            "issue_authority": "Межрайонная инспекция Федеральной налоговой службы № 46 по г. Москве"
+          }
+        },
+        "licenses": [],
+        "finance": {
+          "tax_system": "GENERAL",
+          "income": 123456789000,
+          "expense": 98765432100,
+          "debt": 0,
+          "penalty": 0,
+          "year": 2020
+        },
+        "address": {
+          "value": "г Москва, ул Льва Толстого, д 16",
+          "unrestricted_value": "119021, г Москва, ул Льва Толстого, д 16",
+          "data": {
+            "postal_code": "119021",
+            "country": "Россия",
+            "region_with_type": "г Москва",
+            "city_with_type": "г Москва",
+            "street_with_type": "ул Льва Толстого",
+            "house": "16",
+            "geo_lat": "55.733771",
+            "geo_lon": "37.587937",
+            "fias_id": "f1f2f3f4-f5f6-f7f8-f9f0-f1f2f3f4f5f6"
+          }
+        },
+        "phones": [
+          {
+            "value": "+7 495 739-70-00",
+            "unrestricted_value": "+7 495 739-70-00",
+            "data": {
+              "country": "7",
+              "city": "495",
+              "number": "7397000"
+            }
+          }
+        ],
+        "emails": [
+          {
+            "value": "pr@yandex-team.ru",
+            "unrestricted_value": "pr@yandex-team.ru"
+          }
+        ],
+        "ogrn_date_str": "2002-01-01",
+        "okved_type": "2014"
+      }
+    }
+  ]
+}
