@@ -16,11 +16,13 @@ final class LoggingMiddleware
 {
     /**
      * @param LoggerInterface $logger Логгер для записи запросов и ответов
+     * @param string $level Уровень логирования (debug, info, warning, error)
      * @param bool $logRequestBody Логировать тело запроса
      * @param bool $logResponseBody Логировать тело ответа
      */
     public function __construct(
         private readonly LoggerInterface $logger,
+        private readonly string $level,
         private readonly bool $logRequestBody,
         private readonly bool $logResponseBody,
     ) {
@@ -35,7 +37,8 @@ final class LoggingMiddleware
             $startTime = microtime(true);
 
             // Логируем запрос
-            $this->logger->info(
+            $this->logger->log(
+                $this->level,
                 sprintf('%s %s', $request->getMethod(), (string) $request->getUri())
             );
 
@@ -70,7 +73,8 @@ final class LoggingMiddleware
                         };
                     }
 
-                    $this->logger->info(
+                    $this->logger->log(
+                        $this->level,
                         sprintf(
                             'Response %d for %s %s (%s ms)%s',
                             $response->getStatusCode(),

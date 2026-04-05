@@ -2,7 +2,7 @@
     "name": "ex3mm/dadata",
     "description": "DaData.ru API client for Laravel 12+ and standalone PHP 8.5+",
     "type": "library",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "license": "MIT",
     "keywords": ["dadata", "laravel", "address", "validation", "suggestions", "api-client"],
     "authors": [
@@ -14,7 +14,6 @@
     "require": {
         "php": "^8.5",
         "guzzlehttp/guzzle": "^7.9",
-        "kevinrob/guzzle-cache-middleware": "^7.0",
         "psr/log": "^3.0",
         "psr/simple-cache": "^3.0"
     },

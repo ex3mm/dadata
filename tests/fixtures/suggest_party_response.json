@@ -1,92 +1,40 @@
 {
   "suggestions": [
     {
-      "value": "ООО \"ЯНДЕКС\"",
-      "unrestricted_value": "ООО \"ЯНДЕКС\"",
-      "data": {
-        "kpp": "773401001",
-        "capital": null,
-        "management": {
-          "name": "Волож Аркадий Юрьевич",
-          "post": "ГЕНЕРАЛЬНЫЙ ДИРЕКТОР"
-        },
-        "founders": null,
-        "managers": null,
-        "branch_type": "MAIN",
-        "branch_count": 7,
-        "source": null,
-        "qc": null,
-        "hid": "d2d4e3e4f5e6e7e8e9e0e1e2e3e4e5e6",
-        "type": "LEGAL",
-        "state": {
-          "status": "ACTIVE",
-          "actuality_date": 1609459200000,
-          "registration_date": 1009843200000,
-          "liquidation_date": null
-        },
-        "opf": {
-          "type": "2014",
-          "code": "12300",
-          "full": "Общество с ограниченной ответственностью",
-          "short": "ООО"
-        },
-        "name": {
-          "full_with_opf": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЯНДЕКС\"",
-          "short_with_opf": "ООО \"ЯНДЕКС\"",
-          "latin": null,
-          "full": "ЯНДЕКС",
-          "short": "ЯНДЕКС"
-        },
-        "inn": "7736207543",
-        "ogrn": "1027700229193",
-        "ogrn_date": 1009843200000,
-        "okpo": "73598216",
-        "okato": "45286590000",
-        "oktmo": "45375000",
-        "okved": "62.01",
-        "okveds": null,
-        "authorities": null,
-        "documents": null,
-        "licenses": null,
-        "finance": null,
-        "address": {
-          "value": "г Москва, ул Льва Толстого, д 16",
-          "unrestricted_value": "119021, г Москва, ул Льва Толстого, д 16",
-          "data": {
-            "postal_code": "119021",
-            "country": "Россия",
-            "region_with_type": "г Москва",
-            "city_with_type": "г Москва",
-            "street_with_type": "ул Льва Толстого",
-            "house": "16",
-            "geo_lat": "55.733771",
-            "geo_lon": "37.587937"
-          }
-        },
-        "phones": null,
-        "emails": null,
-        "ogrn_date_str": "2002-01-01",
-        "okved_type": "2014"
-      }
-    },
-    {
       "value": "ПАО СБЕРБАНК",
       "unrestricted_value": "ПАО СБЕРБАНК",
       "data": {
         "kpp": "773601001",
-        "capital": 67760844000,
-        "management": {
-          "name": "Греф Герман Оскарович",
-          "post": "ПРЕЗИДЕНТ, ПРЕДСЕДАТЕЛЬ ПРАВЛЕНИЯ"
+        "kpp_largest": null,
+        "capital": {
+          "type": "FOUND",
+          "value": 67760000000
         },
+        "management": {
+          "name": "ГРЕФ ГЕРМАН ОСКАРОВИЧ",
+          "post": "ПРЕЗИДЕНТ, ПРЕДСЕДАТЕЛЬ ПРАВЛЕНИЯ",
+          "start_date": 1104537600000,
+          "disqualified": false
+        },
+        "founders": null,
+        "managers": null,
+        "predecessors": null,
+        "successors": null,
+        "branch_type": "MAIN",
+        "branch_count": 0,
+        "source": null,
+        "qc": null,
+        "hid": "82da5f11d8f54f58ad55f5430f8f8ca2b1f8a7684b0dcf9e0598304e5fce57df",
         "type": "LEGAL",
         "state": {
           "status": "ACTIVE",
-          "actuality_date": 1609459200000,
+          "code": null,
+          "actuality_date": 1775260800000,
           "registration_date": 677376000000,
           "liquidation_date": null
         },
         "opf": {
+          "type": "PAO",
           "code": "12247",
           "full": "Публичное акционерное общество",
           "short": "ПАО"
@@ -94,28 +42,35 @@
         "name": {
           "full_with_opf": "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"СБЕРБАНК РОССИИ\"",
           "short_with_opf": "ПАО СБЕРБАНК",
+          "latin": null,
           "full": "СБЕРБАНК РОССИИ",
           "short": "СБЕРБАНК"
         },
         "inn": "7707083893",
         "ogrn": "1027700132195",
-        "ogrn_date": 677376000000,
+        "okato": "45293554000",
+        "oktmo": "45398000000",
+        "okpo": "00032537",
+        "okogu": "4100104",
+        "okfs": "41",
         "okved": "64.19",
+        "okveds": null,
+        "authorities": null,
+        "documents": null,
+        "licenses": null,
+        "finance": null,
         "address": {
           "value": "г Москва, ул Вавилова, д 19",
-          "data": {
-            "postal_code": "117312",
-            "region_with_type": "г Москва",
-            "city_with_type": "г Москва",
-            "street_with_type": "ул Вавилова",
-            "house": "19",
-            "geo_lat": "55.704770",
-            "geo_lon": "37.587937"
-          }
+          "unrestricted_value": "117312, г Москва, ул Вавилова, д 19",
+          "data": null
         },
-        "ogrn_date_str": "1991-06-20",
-        "okved_type": "2014"
+        "phones": null,
+        "emails": null,
+        "ogrn_date": 1029388800000,
+        "okved_type": "2014",
+        "employee_count": 300000
       }
     }
   ]
 }
+

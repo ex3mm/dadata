@@ -20,13 +20,16 @@ final class LoggingMiddlewareTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->exactly(2))
-            ->method('info')
-            ->with($this->logicalOr(
-                $this->stringContains('GET https://api.example.com'),
-                $this->stringContains('Response 200')
-            ));
+            ->method('log')
+            ->with(
+                'info',
+                $this->logicalOr(
+                    $this->stringContains('GET https://api.example.com'),
+                    $this->stringContains('Response 200')
+                )
+            );
 
-        $middleware = new LoggingMiddleware($logger, false, false);
+        $middleware = new LoggingMiddleware($logger, 'info', false, false);
 
         $handler = fn () => Create::promiseFor(new Response(200));
         $request = new Request('GET', 'https://api.example.com');
@@ -40,7 +43,7 @@ final class LoggingMiddlewareTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('debug');
 
-        $middleware = new LoggingMiddleware($logger, false, false);
+        $middleware = new LoggingMiddleware($logger, 'info', false, false);
 
         $handler = fn () => Create::promiseFor(new Response(200));
         $request = new Request('POST', 'https://api.example.com', [], '{"query":"test"}');
@@ -56,7 +59,7 @@ final class LoggingMiddlewareTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('Request body:'));
 
-        $middleware = new LoggingMiddleware($logger, true, false);
+        $middleware = new LoggingMiddleware($logger, 'info', true, false);
 
         $handler = fn () => Create::promiseFor(new Response(200));
         $request = new Request('POST', 'https://api.example.com', [], '{"query":"test"}');
@@ -72,7 +75,7 @@ final class LoggingMiddlewareTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('Response body:'));
 
-        $middleware = new LoggingMiddleware($logger, false, false);
+        $middleware = new LoggingMiddleware($logger, 'info', false, false);
 
         $handler = fn () => Create::promiseFor(new Response(200, [], '{"result":"ok"}'));
         $request = new Request('GET', 'https://api.example.com');
@@ -88,7 +91,7 @@ final class LoggingMiddlewareTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('Response body:'));
 
-        $middleware = new LoggingMiddleware($logger, false, true);
+        $middleware = new LoggingMiddleware($logger, 'info', false, true);
 
         $handler = fn () => Create::promiseFor(new Response(200, [], '{"result":"ok"}'));
         $request = new Request('GET', 'https://api.example.com');
@@ -101,13 +104,13 @@ final class LoggingMiddlewareTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('info')
-            ->with($this->stringContains('GET'));
+            ->method('log')
+            ->with('info', $this->stringContains('GET'));
         $logger->expects($this->once())
             ->method('error')
             ->with($this->stringContains('Error for GET'));
 
-        $middleware = new LoggingMiddleware($logger, false, false);
+        $middleware = new LoggingMiddleware($logger, 'info', false, false);
 
         $handler = (fn () => Create::rejectionFor(new \RuntimeException('Test error')));
         $request = new Request('GET', 'https://api.example.com');
@@ -127,9 +130,9 @@ final class LoggingMiddlewareTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->exactly(2))
-            ->method('info');
+            ->method('log');
 
-        $middleware = new LoggingMiddleware($logger, false, false);
+        $middleware = new LoggingMiddleware($logger, 'info', false, false);
 
         $handler = function () {
             usleep(10000); // 10ms delay
@@ -141,5 +144,27 @@ final class LoggingMiddlewareTest extends TestCase
         $result   = $callable($request, [])->wait();
 
         $this->assertEquals(200, $result->getStatusCode());
+    }
+
+    public function testUsesConfiguredLogLevel(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))
+            ->method('log')
+            ->with(
+                'debug',
+                $this->logicalOr(
+                    $this->stringContains('GET https://api.example.com'),
+                    $this->stringContains('Response 200')
+                )
+            );
+
+        $middleware = new LoggingMiddleware($logger, 'debug', false, false);
+
+        $handler = fn () => Create::promiseFor(new Response(200));
+        $request = new Request('GET', 'https://api.example.com');
+
+        $callable = $middleware($handler);
+        $callable($request, [])->wait();
     }
 }

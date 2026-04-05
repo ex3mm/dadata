@@ -42,8 +42,10 @@ final class GuzzleClientFactory
                 $this->config->rateLimit->limit,
                 1 // decay seconds
             );
+            // Используем хеш API ключа как уникальный идентификатор для изоляции лимитов между клиентами
+            $rateLimitKey = 'dadata_api:' . hash('xxh3', $this->config->apiKey);
             $stack->push(
-                new RateLimiterMiddleware($rateLimiter),
+                new RateLimiterMiddleware($rateLimiter, $rateLimitKey),
                 'rate_limiter'
             );
         }
@@ -64,6 +66,7 @@ final class GuzzleClientFactory
         $stack->push(
             new LoggingMiddleware(
                 $logger,
+                $this->config->log->level,
                 $this->config->log->requestBody,
                 $this->config->log->responseBody
             ),

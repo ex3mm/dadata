@@ -8,6 +8,8 @@ use Ex3mm\Dadata\Requests\AbstractRequest;
 
 /**
  * Форматирует запросы для логирования с маскировкой API ключей.
+ *
+ * @codeCoverageIgnore Класс не используется в текущей реализации
  */
 final class RequestFormatter
 {

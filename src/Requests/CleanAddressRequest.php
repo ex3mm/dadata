@@ -4,43 +4,42 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Requests;
 
-use Ex3mm\Dadata\DTO\Response\CleanAddress\CleanAddressResponse;
+use Ex3mm\Dadata\DTO\Response\CleanAddress\CleanAddressResponseDto;
+use Ex3mm\Dadata\DTO\Response\CollectionResponse;
 use Ex3mm\Dadata\Exceptions\ValidationException;
 
 /**
- * Request builder для стандартизации адресов.
+ * Request builder для стандартизации адреса.
  */
 final class CleanAddressRequest extends AbstractRequest
 {
-    private string $address = '';
+    private string $query = '';
 
     /**
      * Устанавливает адрес для стандартизации.
-     *
-     * @param string $address Адрес
      */
-    public function address(string $address): static
+    public function query(string $query): static
     {
-        $this->address = $address;
+        $this->query = trim($query);
 
         return $this;
     }
 
     /**
-     * Отправляет запрос и возвращает типизированный DTO.
+     * @return CollectionResponse<CleanAddressResponseDto>
      */
     #[\Override]
-    public function send(): CleanAddressResponse
+    public function get(): CollectionResponse
     {
-        /** @var CleanAddressResponse */
-        return parent::send();
+        /** @var CollectionResponse<CleanAddressResponseDto> */
+        return parent::get();
     }
 
     protected function validate(): void
     {
-        if ($this->address === '' || $this->address === '0') {
+        if ($this->query === '' || $this->query === '0') {
             throw new ValidationException(
-                message: 'Адрес не может быть пустым',
+                message: 'Адрес для стандартизации не может быть пустым',
                 statusCode: 0,
                 responseBody: '',
                 errors: ['required'],
@@ -53,6 +52,7 @@ final class CleanAddressRequest extends AbstractRequest
      */
     protected function toArray(): array
     {
-        return [$this->address];
+        // API clean/address принимает JSON-массив строк.
+        return [$this->query];
     }
 }

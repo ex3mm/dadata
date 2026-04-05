@@ -19,9 +19,9 @@ abstract class AbstractRequest implements RequestBuilderInterface
     }
 
     /**
-     * Отправляет запрос и возвращает типизированный DTO.
+     * Выполняет запрос и возвращает типизированный DTO.
      */
-    public function send(): DtoInterface
+    public function get(): DtoInterface
     {
         $this->validate();
 
@@ -32,6 +32,8 @@ abstract class AbstractRequest implements RequestBuilderInterface
      * Валидирует параметры запроса.
      *
      * @throws \Ex3mm\Dadata\Exceptions\ValidationException
+     *
+     * @codeCoverageIgnore Абстрактный метод, тестируется через наследников
      */
     abstract protected function validate(): void;
 
@@ -39,6 +41,8 @@ abstract class AbstractRequest implements RequestBuilderInterface
      * Преобразует параметры запроса в массив для API.
      *
      * @return array<string, mixed>|array<int, string>
+     *
+     * @codeCoverageIgnore Абстрактный метод, тестируется через наследников
      */
     abstract protected function toArray(): array;
 }

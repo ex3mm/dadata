@@ -7,9 +7,12 @@ namespace Ex3mm\Dadata\Client;
 use Ex3mm\Dadata\Config\DadataConfig;
 use Ex3mm\Dadata\Contracts\DadataClientInterface;
 use Ex3mm\Dadata\Requests\CleanAddressRequest;
+use Ex3mm\Dadata\Requests\CustomRequest;
+use Ex3mm\Dadata\Requests\FindAffiliatedRequest;
+use Ex3mm\Dadata\Requests\FindBankRequest;
 use Ex3mm\Dadata\Requests\FindPartyRequest;
-use Ex3mm\Dadata\Requests\RawRequest;
 use Ex3mm\Dadata\Requests\SuggestAddressRequest;
+use Ex3mm\Dadata\Requests\SuggestBankRequest;
 use Ex3mm\Dadata\Requests\SuggestPartyRequest;
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -39,17 +42,17 @@ final class DadataClient implements DadataClientInterface
         return $this->httpClient ??= $this->factory->create($this->cache, $this->logger);
     }
 
-    public function cleanAddress(): CleanAddressRequest
-    {
-        return new CleanAddressRequest(
-            new \Ex3mm\Dadata\Endpoints\Cleaner\CleanAddressEndpoint($this, $this->config)
-        );
-    }
-
     public function suggestAddress(): SuggestAddressRequest
     {
         return new SuggestAddressRequest(
             new \Ex3mm\Dadata\Endpoints\Suggest\SuggestAddressEndpoint($this, $this->config)
+        );
+    }
+
+    public function suggestBank(): SuggestBankRequest
+    {
+        return new SuggestBankRequest(
+            new \Ex3mm\Dadata\Endpoints\Suggest\SuggestBankEndpoint($this, $this->config)
         );
     }
 
@@ -60,17 +63,36 @@ final class DadataClient implements DadataClientInterface
         );
     }
 
-    public function findParty(): FindPartyRequest
+    public function findAffiliated(): FindAffiliatedRequest
     {
-        return new FindPartyRequest(
-            new \Ex3mm\Dadata\Endpoints\FindParty\FindPartyEndpoint($this, $this->config)
+        return new FindAffiliatedRequest(
+            new \Ex3mm\Dadata\Endpoints\Suggest\FindAffiliatedEndpoint($this, $this->config)
         );
     }
 
-    public function raw(): RawRequest
+    public function findBank(): FindBankRequest
     {
-        return new RawRequest(
-            new \Ex3mm\Dadata\Endpoints\Raw\RawEndpoint($this, $this->config)
+        return new FindBankRequest(
+            new \Ex3mm\Dadata\Endpoints\Suggest\FindBankEndpoint($this, $this->config)
         );
+    }
+
+    public function findParty(): FindPartyRequest
+    {
+        return new FindPartyRequest(
+            new \Ex3mm\Dadata\Endpoints\Suggest\FindPartyEndpoint($this, $this->config)
+        );
+    }
+
+    public function cleanAddress(): CleanAddressRequest
+    {
+        return new CleanAddressRequest(
+            new \Ex3mm\Dadata\Endpoints\Cleaner\CleanAddressEndpoint($this, $this->config)
+        );
+    }
+
+    public function custom(): CustomRequest
+    {
+        return new CustomRequest($this, $this->config);
     }
 }

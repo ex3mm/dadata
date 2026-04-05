@@ -32,11 +32,15 @@ abstract class AbstractEndpoint implements EndpointInterface
 
     /**
      * Возвращает путь к endpoint.
+     *
+     * @codeCoverageIgnore Абстрактный метод, тестируется через наследников
      */
     abstract protected function getPath(): string;
 
     /**
      * Возвращает базовый URL для endpoint.
+     *
+     * @codeCoverageIgnore Абстрактный метод, тестируется через наследников
      */
     abstract protected function getBaseUrl(): string;
 
@@ -62,6 +66,14 @@ abstract class AbstractEndpoint implements EndpointInterface
             }
 
             return $this->parseResponse($response);
+        } catch (\JsonException $exception) {
+            // Преобразуем ошибки JSON-декодирования в ValidationException
+            throw new ValidationException(
+                message: 'Invalid JSON response from API: ' . $exception->getMessage(),
+                statusCode: 0,
+                responseBody: '',
+                errors: ['json_decode_error']
+            );
         } catch (GuzzleException $exception) {
             // Преобразуем сетевые ошибки Guzzle в NetworkException
             throw NetworkException::fromGuzzleException($exception);
@@ -104,6 +116,8 @@ abstract class AbstractEndpoint implements EndpointInterface
 
     /**
      * Парсит ответ от API в DTO.
+     *
+     * @codeCoverageIgnore Абстрактный метод, тестируется через наследников
      */
     abstract protected function parseResponse(ResponseInterface $response): DtoInterface;
 

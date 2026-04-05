@@ -4,36 +4,33 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Requests;
 
-use Ex3mm\Dadata\DTO\Response\FindParty\FindPartyResponse;
+use Ex3mm\Dadata\DTO\Response\CollectionResponse;
+use Ex3mm\Dadata\DTO\Response\Shared\Party\PartyResponseDto;
+use Ex3mm\Dadata\Enums\PartyBranchType;
+use Ex3mm\Dadata\Enums\PartyStateStatus;
 use Ex3mm\Dadata\Enums\PartyType;
 use Ex3mm\Dadata\Exceptions\ValidationException;
 
 /**
- * Request builder для поиска организаций по ИНН/ОГРН.
+ * Request builder для поиска организации по ИНН или ОГРН.
  */
 final class FindPartyRequest extends AbstractRequest
 {
-    private string $query    = '';
-    private int $count       = 10;
-    private ?PartyType $type = null;
+    private string $query                = '';
+    private int $count                   = 10;
+    private ?string $kpp                 = null;
+    private ?PartyBranchType $branchType = null;
+    private ?PartyType $type             = null;
+    /** @var list<PartyStateStatus> */
+    private array $status = [];
 
-    /**
-     * Устанавливает ИНН или ОГРН для поиска.
-     *
-     * @param string $innOrOgrn ИНН (10 или 12 цифр) или ОГРН (13 или 15 цифр)
-     */
-    public function query(string $innOrOgrn): static
+    public function query(string $query): static
     {
-        $this->query = $innOrOgrn;
+        $this->query = $query;
 
         return $this;
     }
 
-    /**
-     * Устанавливает количество результатов.
-     *
-     * @param int $count Количество результатов
-     */
     public function count(int $count): static
     {
         $this->count = $count;
@@ -42,9 +39,27 @@ final class FindPartyRequest extends AbstractRequest
     }
 
     /**
-     * Фильтрует по типу организации.
-     *
-     * @param PartyType $type Тип организации
+     * Устанавливает КПП (для поиска филиалов по ИНН + КПП).
+     */
+    public function kpp(string $kpp): static
+    {
+        $this->kpp = $kpp;
+
+        return $this;
+    }
+
+    /**
+     * Ограничение по типу подразделения: MAIN или BRANCH.
+     */
+    public function branchType(PartyBranchType $branchType): static
+    {
+        $this->branchType = $branchType;
+
+        return $this;
+    }
+
+    /**
+     * Ограничение по типу организации: LEGAL или INDIVIDUAL.
      */
     public function type(PartyType $type): static
     {
@@ -53,35 +68,45 @@ final class FindPartyRequest extends AbstractRequest
         return $this;
     }
 
-    #[\Override]
-    public function send(): FindPartyResponse
+    /**
+     * Ограничение по статусу организации.
+     *
+     * @param list<PartyStateStatus> $status
+     */
+    public function status(array $status): static
     {
-        /** @var FindPartyResponse */
-        return parent::send();
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return CollectionResponse<PartyResponseDto>
+     */
+    #[\Override]
+    public function get(): CollectionResponse
+    {
+        /** @var CollectionResponse<PartyResponseDto> */
+        return parent::get();
     }
 
     protected function validate(): void
     {
         if ($this->query === '' || $this->query === '0') {
             throw new ValidationException(
-                message: 'ИНН или ОГРН не может быть пустым',
+                message: 'Поисковый запрос не может быть пустым',
                 statusCode: 0,
                 responseBody: '',
                 errors: ['required'],
             );
         }
 
-        // Валидация формата ИНН (10 или 12 цифр) или ОГРН (13 или 15 цифр)
-        $length      = strlen($this->query);
-        $isValidInn  = in_array($length, [10, 12], true) && ctype_digit($this->query);
-        $isValidOgrn = in_array($length, [13, 15], true) && ctype_digit($this->query);
-
-        if (! $isValidInn && ! $isValidOgrn) {
+        if ($this->count > 300) {
             throw new ValidationException(
-                message: 'Неверный формат ИНН/ОГРН. Ожидается: ИНН (10 или 12 цифр) или ОГРН (13 или 15 цифр)',
+                message: 'Количество результатов не может быть больше 300',
                 statusCode: 0,
                 responseBody: '',
-                errors: ['invalid_format'],
+                errors: ['max_count'],
             );
         }
     }
@@ -96,8 +121,23 @@ final class FindPartyRequest extends AbstractRequest
             'count' => $this->count,
         ];
 
+        if ($this->kpp !== null && $this->kpp !== '') {
+            $data['kpp'] = $this->kpp;
+        }
+
+        if ($this->branchType !== null) {
+            $data['branch_type'] = $this->branchType->value;
+        }
+
         if ($this->type !== null) {
             $data['type'] = $this->type->value;
+        }
+
+        if ($this->status !== []) {
+            $data['status'] = array_map(
+                static fn (PartyStateStatus $item): string => $item->value,
+                $this->status
+            );
         }
 
         return $data;

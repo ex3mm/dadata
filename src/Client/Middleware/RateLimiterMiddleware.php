@@ -13,16 +13,17 @@ use Psr\Http\Message\RequestInterface;
  * Middleware для ограничения частоты запросов.
  *
  * Использует RateLimiterInterface для проверки лимитов.
+ * Каждый клиент должен иметь уникальный ключ для изоляции лимитов.
  */
 final class RateLimiterMiddleware
 {
     /**
      * @param RateLimiterInterface $rateLimiter Компонент ограничения частоты запросов
-     * @param string $key Ключ для идентификации лимита
+     * @param string $key Уникальный ключ для идентификации лимита (обычно хеш токена)
      */
     public function __construct(
         private readonly RateLimiterInterface $rateLimiter,
-        private readonly string $key = 'dadata_api',
+        private readonly string $key,
     ) {
     }
 

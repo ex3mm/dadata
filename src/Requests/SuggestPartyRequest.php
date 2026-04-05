@@ -4,26 +4,29 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Requests;
 
-use Ex3mm\Dadata\DTO\Response\SuggestParty\SuggestPartyResponse;
-use Ex3mm\Dadata\Enums\PartyStatus;
+use Ex3mm\Dadata\DTO\Response\CollectionResponse;
+use Ex3mm\Dadata\DTO\Response\Shared\Party\PartyResponseDto;
+use Ex3mm\Dadata\Enums\PartyStateStatus;
 use Ex3mm\Dadata\Enums\PartyType;
 use Ex3mm\Dadata\Exceptions\ValidationException;
 
 /**
- * Request builder для получения подсказок по организациям.
+ * Request builder для подсказок по организациям.
  */
 final class SuggestPartyRequest extends AbstractRequest
 {
-    private string $query        = '';
-    private int $count           = 10;
-    private ?PartyStatus $status = null;
-    private ?PartyType $type     = null;
+    private string $query    = '';
+    private int $count       = 10;
+    private ?PartyType $type = null;
+    /** @var list<PartyStateStatus> */
+    private array $status = [];
+    /** @var list<string> */
+    private array $okved = [];
+    /** @var array<string, mixed> */
+    private array $locations = [];
+    /** @var array<string, mixed> */
+    private array $locationsBoost = [];
 
-    /**
-     * Устанавливает поисковый запрос.
-     *
-     * @param string $query Поисковый запрос
-     */
     public function query(string $query): static
     {
         $this->query = $query;
@@ -31,11 +34,6 @@ final class SuggestPartyRequest extends AbstractRequest
         return $this;
     }
 
-    /**
-     * Устанавливает количество подсказок.
-     *
-     * @param int $count Количество подсказок
-     */
     public function count(int $count): static
     {
         $this->count = $count;
@@ -43,23 +41,6 @@ final class SuggestPartyRequest extends AbstractRequest
         return $this;
     }
 
-    /**
-     * Фильтрует по статусу организации.
-     *
-     * @param PartyStatus $status Статус организации
-     */
-    public function status(PartyStatus $status): static
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * Фильтрует по типу организации.
-     *
-     * @param PartyType $type Тип организации
-     */
     public function type(PartyType $type): static
     {
         $this->type = $type;
@@ -67,11 +48,54 @@ final class SuggestPartyRequest extends AbstractRequest
         return $this;
     }
 
-    #[\Override]
-    public function send(): SuggestPartyResponse
+    /**
+     * @param list<PartyStateStatus> $status
+     */
+    public function status(array $status): static
     {
-        /** @var SuggestPartyResponse */
-        return parent::send();
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @param list<string> $okved
+     */
+    public function okved(array $okved): static
+    {
+        $this->okved = $okved;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string, mixed> $locations
+     */
+    public function locations(array $locations): static
+    {
+        $this->locations = $locations;
+
+        return $this;
+    }
+
+    /**
+     * @param array<string, mixed> $locationsBoost
+     */
+    public function locationsBoost(array $locationsBoost): static
+    {
+        $this->locationsBoost = $locationsBoost;
+
+        return $this;
+    }
+
+    /**
+     * @return CollectionResponse<PartyResponseDto>
+     */
+    #[\Override]
+    public function get(): CollectionResponse
+    {
+        /** @var CollectionResponse<PartyResponseDto> */
+        return parent::get();
     }
 
     protected function validate(): void
@@ -96,12 +120,27 @@ final class SuggestPartyRequest extends AbstractRequest
             'count' => $this->count,
         ];
 
-        if ($this->status !== null) {
-            $data['status'] = [$this->status->value];
-        }
-
         if ($this->type !== null) {
             $data['type'] = $this->type->value;
+        }
+
+        if ($this->status !== []) {
+            $data['status'] = array_map(
+                static fn (PartyStateStatus $item): string => $item->value,
+                $this->status
+            );
+        }
+
+        if ($this->okved !== []) {
+            $data['okved'] = $this->okved;
+        }
+
+        if ($this->locations !== []) {
+            $data['locations'] = $this->locations;
+        }
+
+        if ($this->locationsBoost !== []) {
+            $data['locations_boost'] = $this->locationsBoost;
         }
 
         return $data;

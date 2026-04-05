@@ -10,9 +10,9 @@ namespace Ex3mm\Dadata\Contracts;
 interface RequestBuilderInterface
 {
     /**
-     * Отправляет запрос и возвращает типизированный DTO.
+     * Выполняет запрос и возвращает типизированный DTO.
      *
      * @return DtoInterface Результат выполнения запроса
      */
-    public function send(): DtoInterface;
+    public function get(): DtoInterface;
 }

@@ -23,7 +23,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -52,7 +52,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -79,7 +79,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -102,7 +102,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -125,7 +125,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 5, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -146,7 +146,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 5, 1);
-        $middleware  = new RateLimiterMiddleware($rateLimiter);
+        $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
         $request     = $this->createMock(RequestInterface::class);
 
@@ -156,5 +156,43 @@ final class RateLimiterMiddlewareTest extends TestCase
         $callable($request, []);
 
         $this->assertTrue(true, 'Should handle non-array cache value without error');
+    }
+
+    public function testIsolatesLimitsBetweenDifferentKeys(): void
+    {
+        // Используем InMemoryCache для реального хранения состояния
+        $cache = new \Ex3mm\Dadata\Cache\InMemoryCache();
+
+        $handler = fn () => Create::promiseFor(null);
+        $request = $this->createMock(RequestInterface::class);
+
+        // Создаём два клиента с разными ключами и лимитом 3 запроса/сек
+        $rateLimiterA = new DadataRateLimiter($cache, 3, 1);
+        $middlewareA  = new RateLimiterMiddleware($rateLimiterA, 'client_a');
+        $callableA    = $middlewareA($handler);
+
+        $rateLimiterB = new DadataRateLimiter($cache, 3, 1);
+        $middlewareB  = new RateLimiterMiddleware($rateLimiterB, 'client_b');
+        $callableB    = $middlewareB($handler);
+
+        // Клиент A делает 3 запроса (исчерпывает лимит)
+        $callableA($request, []);
+        $callableA($request, []);
+        $callableA($request, []);
+
+        // Клиент A должен получить исключение на 4-м запросе
+        try {
+            $callableA($request, []);
+            $this->fail('Client A should throw RateLimitException after 3 requests');
+        } catch (\Ex3mm\Dadata\Exceptions\RateLimitException $e) {
+            $this->assertTrue(true, 'Client A correctly blocked after exceeding limit');
+        }
+
+        // Клиент B с другим ключом должен работать нормально (свой лимит)
+        $callableB($request, []);
+        $callableB($request, []);
+        $callableB($request, []);
+
+        $this->assertTrue(true, 'Client B has independent limit and is not affected by Client A');
     }
 }

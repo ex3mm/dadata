@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Requests;
 
-use Ex3mm\Dadata\DTO\Response\SuggestAddress\SuggestAddressResponse;
+use Ex3mm\Dadata\DTO\Response\CollectionResponse;
+use Ex3mm\Dadata\DTO\Response\Shared\AddressValueDto;
 use Ex3mm\Dadata\Enums\AddressBound;
 use Ex3mm\Dadata\Enums\Language;
 use Ex3mm\Dadata\Exceptions\ValidationException;
@@ -19,8 +20,13 @@ final class SuggestAddressRequest extends AbstractRequest
     private ?AddressBound $fromBound = null;
     private ?AddressBound $toBound   = null;
     private Language $language       = Language::RU;
+    private ?string $division        = null;
     /** @var array<string, mixed> */
     private array $locations = [];
+    /** @var array<string, mixed> */
+    private array $locationsGeo = [];
+    /** @var array<string, mixed> */
+    private array $locationsBoost = [];
 
     /**
      * Устанавливает поисковый запрос.
@@ -83,6 +89,18 @@ final class SuggestAddressRequest extends AbstractRequest
     }
 
     /**
+     * Устанавливает тип деления (административное или муниципальное).
+     *
+     * @param string $division Тип деления
+     */
+    public function division(string $division): static
+    {
+        $this->division = $division;
+
+        return $this;
+    }
+
+    /**
      * Устанавливает географические ограничения.
      *
      * @param array<string, mixed> $locations Массив ограничений
@@ -94,11 +112,38 @@ final class SuggestAddressRequest extends AbstractRequest
         return $this;
     }
 
-    #[\Override]
-    public function send(): SuggestAddressResponse
+    /**
+     * Устанавливает ограничение по радиусу окружности.
+     *
+     * @param array<string, mixed> $locationsGeo Массив ограничений по радиусу
+     */
+    public function locationsGeo(array $locationsGeo): static
     {
-        /** @var SuggestAddressResponse */
-        return parent::send();
+        $this->locationsGeo = $locationsGeo;
+
+        return $this;
+    }
+
+    /**
+     * Устанавливает приоритет города при ранжировании.
+     *
+     * @param array<string, mixed> $locationsBoost Массив приоритетов
+     */
+    public function locationsBoost(array $locationsBoost): static
+    {
+        $this->locationsBoost = $locationsBoost;
+
+        return $this;
+    }
+
+    /**
+     * @return CollectionResponse<AddressValueDto>
+     */
+    #[\Override]
+    public function get(): CollectionResponse
+    {
+        /** @var CollectionResponse<AddressValueDto> */
+        return parent::get();
     }
 
     protected function validate(): void
@@ -124,6 +169,10 @@ final class SuggestAddressRequest extends AbstractRequest
             'language' => $this->language->value,
         ];
 
+        if ($this->division !== null) {
+            $data['division'] = $this->division;
+        }
+
         if ($this->fromBound !== null) {
             $data['from_bound'] = ['value' => $this->fromBound->value];
         }
@@ -134,6 +183,14 @@ final class SuggestAddressRequest extends AbstractRequest
 
         if ($this->locations !== []) {
             $data['locations'] = $this->locations;
+        }
+
+        if ($this->locationsGeo !== []) {
+            $data['locations_geo'] = $this->locationsGeo;
+        }
+
+        if ($this->locationsBoost !== []) {
+            $data['locations_boost'] = $this->locationsBoost;
         }
 
         return $data;

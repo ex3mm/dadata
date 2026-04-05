@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Ex3mm\Dadata\Endpoints\Suggest;
 
 use Ex3mm\Dadata\Contracts\DtoInterface;
-use Ex3mm\Dadata\DTO\Response\SuggestParty\SuggestPartyResponse;
+use Ex3mm\Dadata\DTO\Response\CollectionResponse;
+use Ex3mm\Dadata\DTO\Response\Shared\Party\PartyResponseDto;
 use Ex3mm\Dadata\Endpoints\AbstractEndpoint;
 use Ex3mm\Dadata\Exceptions\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Endpoint для получения подсказок по организациям.
+ * Endpoint для подсказок по организациям.
  */
 final class SuggestPartyEndpoint extends AbstractEndpoint
 {
@@ -39,7 +40,22 @@ final class SuggestPartyEndpoint extends AbstractEndpoint
             );
         }
 
-        /** @var array<string, mixed> $data */
-        return SuggestPartyResponse::fromArray($data, $body);
+        $items           = [];
+        $suggestionsData = $data['suggestions'] ?? [];
+
+        if (is_array($suggestionsData)) {
+            foreach ($suggestionsData as $item) {
+                if (is_array($item)) {
+                    /** @var array<string, mixed> $item */
+                    $items[] = PartyResponseDto::fromArray($item);
+                }
+            }
+        }
+
+        return new CollectionResponse(
+            items: $items,
+            raw: $body,
+            total: count($items)
+        );
     }
 }
