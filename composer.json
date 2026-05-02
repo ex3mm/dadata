@@ -2,7 +2,7 @@
     "name": "ex3mm/dadata",
     "description": "DaData.ru API client for Laravel 12+ and standalone PHP 8.5+",
     "type": "library",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "license": "MIT",
     "keywords": ["dadata", "laravel", "address", "validation", "suggestions", "api-client"],
     "authors": [
