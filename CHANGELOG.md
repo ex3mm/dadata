@@ -7,6 +7,8 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-05-02
+
 ### Добавлено
 - Поддержка полей `citizenship` и `fio` для индивидуальных предпринимателей в `PartyDataDto`
   - `CitizenshipDto` — гражданство ИП с кодом страны и названием
@@ -95,3 +97,4 @@
 
 [1.0.0]: https://github.com/ex3mm/dadata/releases/tag/v1.0.0
 [2.0.0]: https://github.com/ex3mm/dadata/releases/tag/v2.0.0
+[2.1.0]: https://github.com/ex3mm/dadata/releases/tag/v2.1.0
