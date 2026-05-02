@@ -11,6 +11,7 @@ use Ex3mm\Dadata\Requests\FindBankRequest;
 use Ex3mm\Dadata\Requests\FindPartyRequest;
 use Ex3mm\Dadata\Requests\SuggestAddressRequest;
 use Ex3mm\Dadata\Requests\SuggestBankRequest;
+use Ex3mm\Dadata\Requests\SuggestFioRequest;
 use Ex3mm\Dadata\Requests\SuggestPartyRequest;
 
 /**
@@ -32,6 +33,11 @@ interface DadataClientInterface
      * Создаёт request builder для подсказок по организациям.
      */
     public function suggestParty(): SuggestPartyRequest;
+
+    /**
+     * Создаёт request builder для подсказок по ФИО.
+     */
+    public function suggestFio(): SuggestFioRequest;
 
     /**
      * Создаёт request builder для поиска аффилированных компаний.

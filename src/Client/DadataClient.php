@@ -13,6 +13,7 @@ use Ex3mm\Dadata\Requests\FindBankRequest;
 use Ex3mm\Dadata\Requests\FindPartyRequest;
 use Ex3mm\Dadata\Requests\SuggestAddressRequest;
 use Ex3mm\Dadata\Requests\SuggestBankRequest;
+use Ex3mm\Dadata\Requests\SuggestFioRequest;
 use Ex3mm\Dadata\Requests\SuggestPartyRequest;
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -60,6 +61,13 @@ final class DadataClient implements DadataClientInterface
     {
         return new SuggestPartyRequest(
             new \Ex3mm\Dadata\Endpoints\Suggest\SuggestPartyEndpoint($this, $this->config)
+        );
+    }
+
+    public function suggestFio(): SuggestFioRequest
+    {
+        return new SuggestFioRequest(
+            new \Ex3mm\Dadata\Endpoints\Suggest\SuggestFioEndpoint($this, $this->config)
         );
     }
 

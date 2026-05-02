@@ -5,6 +5,46 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [Unreleased]
+
+### Добавлено
+- Поддержка полей `citizenship` и `fio` для индивидуальных предпринимателей в `PartyDataDto`
+  - `CitizenshipDto` — гражданство ИП с кодом страны и названием
+  - `CitizenshipCodeDto` — числовой и буквенный код страны (numeric, alpha_3)
+  - `CitizenshipNameDto` — полное и краткое название страны
+  - `FioDto` — ФИО индивидуального предпринимателя (surname, name, patronymic, gender, source, qc)
+- Поле `invalid` для юридических лиц в `PartyDataDto` — признак недействительности
+- Поля `sites` и `financeHistory` в `PartyDataDto` для сайтов организации и истории финансов
+- Endpoint для получения подсказок по ФИО (`/suggest/fio`)
+  - `SuggestFioEndpoint` — эндпоинт для подсказок по ФИО
+  - `SuggestFioRequest` — request builder с методами `query()`, `count()`, `parts()`, `gender()`
+  - `FioSuggestionResponseDto` — DTO подсказки ФИО
+  - `FioDataDto` — DTO данных ФИО из подсказок
+  - `Gender` enum — пол (MALE, FEMALE, UNKNOWN)
+- Метод `suggestFio()` в `DadataClient` и `DadataClientInterface`
+
+### Изменено
+- Переупорядочены поля в `PartyDataDto` в соответствии с порядком полей в API DaData:
+  - Поля для ИП (citizenship, fio) — в начале
+  - Общие поля — в порядке как в API ответе
+  - Поля для юрлиц (kpp, capital, management и т.д.) — в конце
+
+### Тесты
+- Добавлены тесты для индивидуальных предпринимателей (`PartyIndividualEntrepreneurTest`)
+  - Тест активного ИП с citizenship и fio
+  - Тест ликвидированного ИП
+  - Тест обработки отсутствующих полей для юрлиц
+  - Тест сериализации в массив
+- Добавлены тесты для юридических лиц (`PartyLegalEntityTest`)
+  - Тест юрлица со всеми полями (kpp, capital, invalid, management, founders, managers)
+  - Тест сериализации в массив
+- Добавлены тесты для подсказок ФИО (`SuggestFioResponseTest`)
+  - Тест парсинга мужского имени
+  - Тест парсинга женского имени
+  - Тест парсинга фамилии
+  - Тест парсинга с неопределённым полом
+  - Тест сериализации в массив
+
 ## [2.0.0] - 2026-04-05
 
 ### Изменено

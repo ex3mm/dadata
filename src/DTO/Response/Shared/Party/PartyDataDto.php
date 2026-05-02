@@ -11,16 +11,10 @@ use Ex3mm\Dadata\Enums\PartyType;
 final readonly class PartyDataDto
 {
     public function __construct(
-        public ?string $kpp,
-        public ?string $kppLargest,
-        public mixed $capital,
-        public ?PartyManagementDto $management,
-        public mixed $founders,
-        public mixed $managers,
-        public mixed $predecessors,
-        public mixed $successors,
-        public ?PartyBranchType $branchType,
-        public ?int $branchCount,
+        // Поля для ИП
+        public ?CitizenshipDto $citizenship,
+        public ?FioDto $fio,
+        // Общие поля (порядок как в API)
         public ?string $source,
         public ?string $qc,
         public ?string $hid,
@@ -30,9 +24,9 @@ final readonly class PartyDataDto
         public ?PartyNameDto $name,
         public ?string $inn,
         public ?string $ogrn,
+        public ?string $okpo,
         public ?string $okato,
         public ?string $oktmo,
-        public ?string $okpo,
         public ?string $okogu,
         public ?string $okfs,
         public ?string $okved,
@@ -44,9 +38,23 @@ final readonly class PartyDataDto
         public ?AddressValueDto $address,
         public mixed $phones,
         public mixed $emails,
+        public mixed $sites,
         public ?int $ogrnDate,
         public ?string $okvedType,
+        public mixed $financeHistory,
         public ?int $employeeCount,
+        // Поля для юрлиц
+        public ?string $kpp,
+        public ?string $kppLargest,
+        public mixed $capital,
+        public mixed $invalid,
+        public ?PartyManagementDto $management,
+        public mixed $founders,
+        public mixed $managers,
+        public mixed $predecessors,
+        public mixed $successors,
+        public ?PartyBranchType $branchType,
+        public ?int $branchCount,
     ) {
     }
 
@@ -66,16 +74,8 @@ final readonly class PartyDataDto
         }
 
         return new self(
-            kpp: self::extractString($data, 'kpp'),
-            kppLargest: self::extractString($data, 'kpp_largest'),
-            capital: $data['capital'] ?? null,
-            management: self::extractManagement($data),
-            founders: $data['founders']         ?? null,
-            managers: $data['managers']         ?? null,
-            predecessors: $data['predecessors'] ?? null,
-            successors: $data['successors']     ?? null,
-            branchType: $branchType,
-            branchCount: self::extractInt($data, 'branch_count'),
+            citizenship: self::extractCitizenship($data),
+            fio: self::extractFio($data),
             source: self::extractString($data, 'source'),
             qc: self::extractString($data, 'qc'),
             hid: self::extractString($data, 'hid'),
@@ -85,9 +85,9 @@ final readonly class PartyDataDto
             name: self::extractName($data),
             inn: self::extractString($data, 'inn'),
             ogrn: self::extractString($data, 'ogrn'),
+            okpo: self::extractString($data, 'okpo'),
             okato: self::extractString($data, 'okato'),
             oktmo: self::extractString($data, 'oktmo'),
-            okpo: self::extractString($data, 'okpo'),
             okogu: self::extractString($data, 'okogu'),
             okfs: self::extractString($data, 'okfs'),
             okved: self::extractString($data, 'okved'),
@@ -99,10 +99,53 @@ final readonly class PartyDataDto
             address: self::extractAddress($data),
             phones: $data['phones'] ?? null,
             emails: $data['emails'] ?? null,
+            sites: $data['sites']   ?? null,
             ogrnDate: self::extractInt($data, 'ogrn_date'),
             okvedType: self::extractString($data, 'okved_type'),
+            financeHistory: $data['finance_history'] ?? null,
             employeeCount: self::extractInt($data, 'employee_count'),
+            kpp: self::extractString($data, 'kpp'),
+            kppLargest: self::extractString($data, 'kpp_largest'),
+            capital: $data['capital'] ?? null,
+            invalid: $data['invalid'] ?? null,
+            management: self::extractManagement($data),
+            founders: $data['founders']         ?? null,
+            managers: $data['managers']         ?? null,
+            predecessors: $data['predecessors'] ?? null,
+            successors: $data['successors']     ?? null,
+            branchType: $branchType,
+            branchCount: self::extractInt($data, 'branch_count'),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function extractCitizenship(array $data): ?CitizenshipDto
+    {
+        if (!isset($data['citizenship']) || !is_array($data['citizenship'])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $citizenship */
+        $citizenship = $data['citizenship'];
+
+        return CitizenshipDto::fromArray($citizenship);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function extractFio(array $data): ?FioDto
+    {
+        if (!isset($data['fio']) || !is_array($data['fio'])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $fio */
+        $fio = $data['fio'];
+
+        return FioDto::fromArray($fio);
     }
 
     /**
@@ -206,42 +249,47 @@ final readonly class PartyDataDto
     public function toArray(): array
     {
         return [
-            'kpp'            => $this->kpp,
-            'kpp_largest'    => $this->kppLargest,
-            'capital'        => $this->capital,
-            'management'     => $this->management?->toArray(),
-            'founders'       => $this->founders,
-            'managers'       => $this->managers,
-            'predecessors'   => $this->predecessors,
-            'successors'     => $this->successors,
-            'branch_type'    => $this->branchType?->value,
-            'branch_count'   => $this->branchCount,
-            'source'         => $this->source,
-            'qc'             => $this->qc,
-            'hid'            => $this->hid,
-            'type'           => $this->type?->value,
-            'state'          => $this->state?->toArray(),
-            'opf'            => $this->opf?->toArray(),
-            'name'           => $this->name?->toArray(),
-            'inn'            => $this->inn,
-            'ogrn'           => $this->ogrn,
-            'okato'          => $this->okato,
-            'oktmo'          => $this->oktmo,
-            'okpo'           => $this->okpo,
-            'okogu'          => $this->okogu,
-            'okfs'           => $this->okfs,
-            'okved'          => $this->okved,
-            'okveds'         => $this->okveds,
-            'authorities'    => $this->authorities,
-            'documents'      => $this->documents,
-            'licenses'       => $this->licenses,
-            'finance'        => $this->finance,
-            'address'        => $this->address?->toArray(),
-            'phones'         => $this->phones,
-            'emails'         => $this->emails,
-            'ogrn_date'      => $this->ogrnDate,
-            'okved_type'     => $this->okvedType,
-            'employee_count' => $this->employeeCount,
+            'citizenship'     => $this->citizenship?->toArray(),
+            'fio'             => $this->fio?->toArray(),
+            'source'          => $this->source,
+            'qc'              => $this->qc,
+            'hid'             => $this->hid,
+            'type'            => $this->type?->value,
+            'state'           => $this->state?->toArray(),
+            'opf'             => $this->opf?->toArray(),
+            'name'            => $this->name?->toArray(),
+            'inn'             => $this->inn,
+            'ogrn'            => $this->ogrn,
+            'okpo'            => $this->okpo,
+            'okato'           => $this->okato,
+            'oktmo'           => $this->oktmo,
+            'okogu'           => $this->okogu,
+            'okfs'            => $this->okfs,
+            'okved'           => $this->okved,
+            'okveds'          => $this->okveds,
+            'authorities'     => $this->authorities,
+            'documents'       => $this->documents,
+            'licenses'        => $this->licenses,
+            'finance'         => $this->finance,
+            'address'         => $this->address?->toArray(),
+            'phones'          => $this->phones,
+            'emails'          => $this->emails,
+            'sites'           => $this->sites,
+            'ogrn_date'       => $this->ogrnDate,
+            'okved_type'      => $this->okvedType,
+            'finance_history' => $this->financeHistory,
+            'employee_count'  => $this->employeeCount,
+            'kpp'             => $this->kpp,
+            'kpp_largest'     => $this->kppLargest,
+            'capital'         => $this->capital,
+            'invalid'         => $this->invalid,
+            'management'      => $this->management?->toArray(),
+            'founders'        => $this->founders,
+            'managers'        => $this->managers,
+            'predecessors'    => $this->predecessors,
+            'successors'      => $this->successors,
+            'branch_type'     => $this->branchType?->value,
+            'branch_count'    => $this->branchCount,
         ];
     }
 }
