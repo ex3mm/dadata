@@ -111,6 +111,7 @@ $response = Dadata::getSuggestAddress('Санкт-Петербург');
 $response = Dadata::getCleanAddress('москва сухонская 11');
 $response = Dadata::getSuggestBank('сбербанк');
 $response = Dadata::getSuggestParty('сбербанк');
+$response = Dadata::getSuggestFio('Викт');
 $response = Dadata::getFindBank('044525225');
 $response = Dadata::getFindParty('7707083893');
 $response = Dadata::getFindAffiliated('7736207543');
@@ -135,6 +136,7 @@ php artisan vendor:publish --tag=dadata-config
 | `suggestParty()` | Подсказки организаций | `.../suggest/party` |
 | `findParty()` | Поиск организации по ИНН/ОГРН | `.../findById/party` |
 | `findAffiliated()` | Аффилированные компании по ИНН | `.../findAffiliated/party` |
+| `suggestFio()` | Подсказки ФИО | `.../suggest/fio` |
 | `custom()` | Произвольный запрос к DaData | любой URL |
 
 Базовые URL: `https://suggestions.dadata.ru/suggestions/api/4_1/rs` и `https://cleaner.dadata.ru/api/v1`.
@@ -337,6 +339,35 @@ $response = $client->findAffiliated()
 
 ---
 
+### `suggestFio()`
+
+Подсказки ФИО по неполному имени, фамилии или отчеству.
+
+```php
+$response = $client->suggestFio()
+    ->query('Викт')                  // обязательный
+    ->count(5)
+    ->parts(['NAME'])
+    ->gender(Gender::MALE)
+    ->get();
+
+foreach ($response->items as $item) {
+    echo $item->value . PHP_EOL;
+    // Виктор
+}
+```
+
+| Метод | Описание |
+|---|---|
+| `query(string)` | Поисковый запрос (обязательный) |
+| `count(int)` | Количество подсказок |
+| `parts(array)` | Части ФИО для подсказок: `['SURNAME']`, `['NAME']`, `['PATRONYMIC']` или их комбинация |
+| `gender(Gender)` | Пол: `Gender::MALE` или `Gender::FEMALE` |
+
+Возвращает `CollectionResponse<FioSuggestionResponseDto>`.
+
+---
+
 ### `custom()`
 
 Произвольный запрос к любому DaData endpoint. Возвращает сырой JSON-ответ строкой.
@@ -465,6 +496,15 @@ $rawBody = $client->custom()
 | `LIQUIDATED` | `LIQUIDATED` | Ликвидированная организация |
 | `BANKRUPT` | `BANKRUPT` | В процедуре банкротства |
 | `REORGANIZING` | `REORGANIZING` | В процессе реорганизации |
+
+### `Gender`
+Используется в `gender()` запроса `suggestFio` и поле `data.gender` в ответах.
+
+| Значение | API value | Описание |
+|---|---|---|
+| `MALE` | `MALE` | Мужской |
+| `FEMALE` | `FEMALE` | Женский |
+| `UNKNOWN` | `UNKNOWN` | Не определён |
 
 ### `AffiliatedScope`
 Используется в `scope()` запроса `findAffiliated`.

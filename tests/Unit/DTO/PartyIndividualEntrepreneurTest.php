@@ -116,6 +116,13 @@ final class PartyIndividualEntrepreneurTest extends TestCase
         $this->assertNull($dto->data->sites);
         $this->assertNull($dto->data->financeHistory);
         $this->assertIsArray($dto->data->emails);
+        $this->assertCount(1, $dto->data->emails);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\PartyEmailDto::class, $dto->data->emails[0]);
+        $this->assertSame('K.E.V.FINANCEDXB@GMAIL.COM', $dto->data->emails[0]->value);
+        $this->assertSame('K.E.V.FINANCEDXB@GMAIL.COM', $dto->data->emails[0]->unrestrictedValue);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\PartyEmailDataDto::class, $dto->data->emails[0]->data);
+        $this->assertSame('K.E.V.FINANCEDXB', $dto->data->emails[0]->data->local);
+        $this->assertSame('GMAIL.COM', $dto->data->emails[0]->data->domain);
     }
 
     public function test_handles_missing_citizenship_and_fio_gracefully(): void

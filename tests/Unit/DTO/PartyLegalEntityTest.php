@@ -172,9 +172,9 @@ final class PartyLegalEntityTest extends TestCase
         // Проверяем поля юрлица
         $this->assertSame('583601001', $dto->data->kpp);
         $this->assertNull($dto->data->kppLargest);
-        $this->assertIsArray($dto->data->capital);
-        $this->assertSame('УСТАВНЫЙ КАПИТАЛ', $dto->data->capital['type']);
-        $this->assertSame(400000000, $dto->data->capital['value']);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\CapitalDto::class, $dto->data->capital);
+        $this->assertSame('УСТАВНЫЙ КАПИТАЛ', $dto->data->capital->type);
+        $this->assertSame(400000000, $dto->data->capital->value);
         $this->assertNull($dto->data->invalid);
 
         // Проверяем management
@@ -185,11 +185,21 @@ final class PartyLegalEntityTest extends TestCase
         // Проверяем founders и managers
         $this->assertIsArray($dto->data->founders);
         $this->assertCount(1, $dto->data->founders);
-        $this->assertSame('645501716614', $dto->data->founders[0]['inn']);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\FounderDto::class, $dto->data->founders[0]);
+        $this->assertSame('645501716614', $dto->data->founders[0]->inn);
+        $this->assertSame('PHYSICAL', $dto->data->founders[0]->type);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\FioDto::class, $dto->data->founders[0]->fio);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\FounderShareDto::class, $dto->data->founders[0]->share);
+        $this->assertSame(0.1, $dto->data->founders[0]->share->value);
+        $this->assertSame('PERCENT', $dto->data->founders[0]->share->type);
 
         $this->assertIsArray($dto->data->managers);
         $this->assertCount(1, $dto->data->managers);
-        $this->assertSame('583408173320', $dto->data->managers[0]['inn']);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\PartyManagerDto::class, $dto->data->managers[0]);
+        $this->assertSame('583408173320', $dto->data->managers[0]->inn);
+        $this->assertSame('ГЕНЕРАЛЬНЫЙ ДИРЕКТОР', $dto->data->managers[0]->post);
+        $this->assertSame('EMPLOYEE', $dto->data->managers[0]->type);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\FioDto::class, $dto->data->managers[0]->fio);
 
         // Проверяем branch_type
         $this->assertSame(PartyBranchType::MAIN, $dto->data->branchType);
@@ -206,9 +216,14 @@ final class PartyLegalEntityTest extends TestCase
         $this->assertSame(4, $dto->data->employeeCount);
 
         // Проверяем finance
-        $this->assertIsArray($dto->data->finance);
-        $this->assertSame('USN', $dto->data->finance['tax_system']);
-        $this->assertSame(287602000, $dto->data->finance['income']);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\FinanceDto::class, $dto->data->finance);
+        $this->assertSame('USN', $dto->data->finance->taxSystem);
+        $this->assertEquals(287602000, $dto->data->finance->income);
+        $this->assertEquals(91942000, $dto->data->finance->expense);
+        $this->assertEquals(279606000, $dto->data->finance->revenue);
+        $this->assertNull($dto->data->finance->debt);
+        $this->assertNull($dto->data->finance->penalty);
+        $this->assertSame(2025, $dto->data->finance->year);
 
         // Проверяем address
         $this->assertInstanceOf(AddressValueDto::class, $dto->data->address);
@@ -216,6 +231,12 @@ final class PartyLegalEntityTest extends TestCase
         // Проверяем phones
         $this->assertIsArray($dto->data->phones);
         $this->assertCount(1, $dto->data->phones);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\PartyPhoneDto::class, $dto->data->phones[0]);
+        $this->assertSame('+7 8412 209580', $dto->data->phones[0]->value);
+        $this->assertSame('+7 8412 209580', $dto->data->phones[0]->unrestrictedValue);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Party\PartyPhoneDataDto::class, $dto->data->phones[0]->data);
+        $this->assertSame('Прямой мобильный', $dto->data->phones[0]->data->type);
+        $this->assertSame('209580', $dto->data->phones[0]->data->number);
     }
 
     public function test_to_array_includes_legal_entity_fields(): void
@@ -252,8 +273,18 @@ final class PartyLegalEntityTest extends TestCase
         $this->assertArrayHasKey('data', $array);
         $this->assertArrayHasKey('kpp', $array['data']);
         $this->assertArrayHasKey('capital', $array['data']);
+        $this->assertIsArray($array['data']['capital']);
+        $this->assertArrayHasKey('type', $array['data']['capital']);
+        $this->assertArrayHasKey('value', $array['data']['capital']);
         $this->assertArrayHasKey('invalid', $array['data']);
         $this->assertArrayHasKey('branch_type', $array['data']);
+
+        $this->assertSame('123456789', $array['data']['kpp']);
+        $this->assertIsArray($array['data']['capital']);
+        $this->assertSame('УСТАВНЫЙ КАПИТАЛ', $array['data']['capital']['type']);
+        $this->assertSame(10000, $array['data']['capital']['value']);
+        $this->assertNull($array['data']['invalid']);
+        $this->assertSame('MAIN', $array['data']['branch_type']);
 
         $this->assertSame('123456789', $array['data']['kpp']);
         $this->assertIsArray($array['data']['capital']);

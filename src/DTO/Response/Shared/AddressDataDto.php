@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\DTO\Response\Shared;
 
+use Ex3mm\Dadata\DTO\Response\Shared\Address\DivisionsDto;
+use Ex3mm\Dadata\DTO\Response\Shared\Address\MetroStationDto;
+
 /**
  * Детальные данные адреса из DaData API.
  *
@@ -108,12 +111,12 @@ final readonly class AddressDataDto
      * @param float|null $geoLon Долгота
      * @param string|null $beltwayHit Внутри кольцевой дороги
      * @param int|null $beltwayDistance Расстояние до кольцевой дороги в км
-     * @param mixed $metro Список ближайших станций метро
-     * @param mixed $divisions Данные о подразделении ФМС
+     * @param list<MetroStationDto>|null $metro Список ближайших станций метро
+     * @param DivisionsDto|null $divisions Данные о подразделении ФМС
      * @param string|null $qcGeo Код качества координат
      * @param string|null $qcComplete Код полноты адреса
      * @param string|null $qcHouse Код проверки дома
-     * @param mixed $historyValues Исторические названия
+     * @param list<string>|null $historyValues Исторические названия
      * @param string|null $unparsedParts Нераспознанная часть адреса
      * @param string|null $source Исходная строка
      * @param string|null $qc Код качества
@@ -215,12 +218,14 @@ final readonly class AddressDataDto
         public ?float $geoLon,
         public ?string $beltwayHit,
         public ?int $beltwayDistance,
-        public mixed $metro,
-        public mixed $divisions,
+        /** @var list<MetroStationDto>|null */
+        public ?array $metro,
+        public ?DivisionsDto $divisions,
         public ?string $qcGeo,
         public ?string $qcComplete,
         public ?string $qcHouse,
-        public mixed $historyValues,
+        /** @var list<string>|null */
+        public ?array $historyValues,
         public ?string $unparsedParts,
         public ?string $source,
         public ?string $qc,
@@ -329,12 +334,12 @@ final readonly class AddressDataDto
             geoLon: self::extractFloat($data, 'geo_lon'),
             beltwayHit: self::extractString($data, 'beltway_hit'),
             beltwayDistance: self::extractInt($data, 'beltway_distance'),
-            metro: self::extractArray($data, 'metro'),
-            divisions: self::extractArray($data, 'divisions'),
+            metro: self::extractMetro($data),
+            divisions: self::extractDivisions($data),
             qcGeo: self::extractString($data, 'qc_geo'),
             qcComplete: self::extractString($data, 'qc_complete'),
             qcHouse: self::extractString($data, 'qc_house'),
-            historyValues: self::extractArray($data, 'history_values'),
+            historyValues: self::extractHistoryValues($data),
             unparsedParts: self::extractString($data, 'unparsed_parts'),
             source: self::extractString($data, 'source'),
             qc: self::extractString($data, 'qc'),
@@ -375,26 +380,68 @@ final readonly class AddressDataDto
 
     /**
      * @param array<string, mixed> $data
+     *
+     * @return list<MetroStationDto>|null
+     */
+    private static function extractMetro(array $data): ?array
+    {
+        if (!isset($data['metro']) || !is_array($data['metro'])) {
+            return null;
+        }
+
+        $metro = [];
+        foreach ($data['metro'] as $station) {
+            if (is_array($station)) {
+                /** @var array<string, mixed> $station */
+                $metro[] = MetroStationDto::fromArray($station);
+            }
+        }
+
+        return $metro !== [] ? $metro : null;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private static function extractDivisions(array $data): ?DivisionsDto
+    {
+        if (!isset($data['divisions']) || !is_array($data['divisions'])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $divisionsData */
+        $divisionsData = $data['divisions'];
+
+        return DivisionsDto::fromArray($divisionsData);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return list<string>|null
+     */
+    private static function extractHistoryValues(array $data): ?array
+    {
+        if (!isset($data['history_values']) || !is_array($data['history_values'])) {
+            return null;
+        }
+
+        $historyValues = [];
+        foreach ($data['history_values'] as $value) {
+            if (is_string($value)) {
+                $historyValues[] = $value;
+            }
+        }
+
+        return $historyValues !== [] ? $historyValues : null;
+    }
+
+    /**
+     * @param array<string, mixed> $data
      */
     private static function extractArray(array $data, string $key): mixed
     {
         return isset($data[$key]) && is_array($data[$key]) ? $data[$key] : null;
-    }
-
-    /**
-     * Рекурсивно преобразует значение в массив.
-     */
-    private static function convertToArray(mixed $value): mixed
-    {
-        if (is_object($value) && method_exists($value, 'toArray')) {
-            return $value->toArray();
-        }
-
-        if (is_array($value)) {
-            return array_map(fn ($item) => self::convertToArray($item), $value);
-        }
-
-        return $value;
     }
 
     /**
@@ -499,12 +546,12 @@ final readonly class AddressDataDto
             'geo_lon'                 => $this->geoLon,
             'beltway_hit'             => $this->beltwayHit,
             'beltway_distance'        => $this->beltwayDistance,
-            'metro'                   => self::convertToArray($this->metro),
-            'divisions'               => self::convertToArray($this->divisions),
+            'metro'                   => $this->metro !== null ? array_map(fn (MetroStationDto $station) => $station->toArray(), $this->metro) : null,
+            'divisions'               => $this->divisions?->toArray(),
             'qc_geo'                  => $this->qcGeo,
             'qc_complete'             => $this->qcComplete,
             'qc_house'                => $this->qcHouse,
-            'history_values'          => self::convertToArray($this->historyValues),
+            'history_values'          => $this->historyValues,
             'unparsed_parts'          => $this->unparsedParts,
             'source'                  => $this->source,
             'qc'                      => $this->qc,

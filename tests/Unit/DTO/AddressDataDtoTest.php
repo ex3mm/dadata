@@ -139,13 +139,24 @@ final class AddressDataDtoTest extends TestCase
     {
         $data = [
             'history_values' => ['ул Мира', 'ул Ленина'],
-            'metro'          => [['name' => 'Площадь Ленина']],
+            'metro'          => [
+                [
+                    'name'     => 'Площадь Ленина',
+                    'line'     => 'Красная линия',
+                    'distance' => 0.5,
+                ],
+            ],
         ];
 
         $dto = AddressDataDto::fromArray($data);
 
         $this->assertSame(['ул Мира', 'ул Ленина'], $dto->historyValues);
-        $this->assertSame([['name' => 'Площадь Ленина']], $dto->metro);
+        $this->assertIsArray($dto->metro);
+        $this->assertCount(1, $dto->metro);
+        $this->assertInstanceOf(\Ex3mm\Dadata\DTO\Response\Shared\Address\MetroStationDto::class, $dto->metro[0]);
+        $this->assertSame('Площадь Ленина', $dto->metro[0]->name);
+        $this->assertSame('Красная линия', $dto->metro[0]->line);
+        $this->assertSame(0.5, $dto->metro[0]->distance);
     }
 
     public function test_extract_array_returns_null_for_missing_key(): void

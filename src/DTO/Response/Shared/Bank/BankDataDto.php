@@ -20,13 +20,15 @@ final readonly class BankDataDto
         public ?string $kpp,
         public ?string $okpo,
         public ?string $correspondentAccount,
-        public mixed $treasuryAccounts,
+        public ?string $treasuryAccounts,
         public ?string $registrationNumber,
         public ?string $paymentCity,
         public ?BankStateDto $state,
+        /** @var mixed Расчётно-кассовый центр. Не заполняется согласно документации API DaData. */
         public mixed $rkc,
-        public mixed $cbr,
+        public ?CbrDto $cbr,
         public ?AddressValueDto $address,
+        /** @var mixed Телефоны банка. Структура не описана в документации API DaData. */
         public mixed $phones,
     ) {
     }
@@ -45,12 +47,12 @@ final readonly class BankDataDto
             kpp: self::extractString($data, 'kpp'),
             okpo: self::extractString($data, 'okpo'),
             correspondentAccount: self::extractString($data, 'correspondent_account'),
-            treasuryAccounts: $data['treasury_accounts'] ?? null,
+            treasuryAccounts: self::extractString($data, 'treasury_accounts'),
             registrationNumber: self::extractString($data, 'registration_number'),
             paymentCity: self::extractString($data, 'payment_city'),
             state: self::extractState($data),
             rkc: $data['rkc'] ?? null,
-            cbr: $data['cbr'] ?? null,
+            cbr: self::extractCbr($data),
             address: self::extractAddress($data),
             phones: $data['phones'] ?? null,
         );
@@ -125,6 +127,21 @@ final readonly class BankDataDto
     }
 
     /**
+     * @param array<string, mixed> $data
+     */
+    private static function extractCbr(array $data): ?CbrDto
+    {
+        if (!isset($data['cbr']) || !is_array($data['cbr'])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $cbr */
+        $cbr = $data['cbr'];
+
+        return CbrDto::fromArray($cbr);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -143,7 +160,7 @@ final readonly class BankDataDto
             'payment_city'          => $this->paymentCity,
             'state'                 => $this->state?->toArray(),
             'rkc'                   => $this->rkc,
-            'cbr'                   => $this->cbr,
+            'cbr'                   => $this->cbr?->toArray(),
             'address'               => $this->address?->toArray(),
             'phones'                => $this->phones,
         ];
