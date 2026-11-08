@@ -52,7 +52,6 @@ final class SuggestAddressEndpoint extends AbstractEndpoint
             }
         }
 
-        /** @var array<string, mixed> $data */
         return new CollectionResponse(
             items: $items,
             raw: $body,

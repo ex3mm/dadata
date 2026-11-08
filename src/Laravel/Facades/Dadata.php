@@ -74,16 +74,16 @@ final class Dadata extends Facade
         Language $language = Language::RU,
         array $locations = []
     ): CollectionResponse {
-        $request = static::suggestAddress()
+        $request = self::suggestAddress()
             ->query($query)
             ->count($count)
             ->language($language);
 
-        if ($fromBound !== null) {
+        if ($fromBound instanceof \Ex3mm\Dadata\Enums\AddressBound) {
             $request->fromBound($fromBound);
         }
 
-        if ($toBound !== null) {
+        if ($toBound instanceof \Ex3mm\Dadata\Enums\AddressBound) {
             $request->toBound($toBound);
         }
 
@@ -114,7 +114,7 @@ final class Dadata extends Facade
         array $locations = [],
         array $locationsBoost = []
     ): CollectionResponse {
-        $request = static::suggestBank()
+        $request = self::suggestBank()
             ->query($query)
             ->count($count);
 
@@ -159,11 +159,11 @@ final class Dadata extends Facade
         array $locations = [],
         array $locationsBoost = []
     ): CollectionResponse {
-        $request = static::suggestParty()
+        $request = self::suggestParty()
             ->query($query)
             ->count($count);
 
-        if ($type !== null) {
+        if ($type instanceof \Ex3mm\Dadata\Enums\PartyType) {
             $request->type($type);
         }
 
@@ -200,7 +200,7 @@ final class Dadata extends Facade
         int $count = 10,
         array $scope = []
     ): CollectionResponse {
-        $request = static::findAffiliated()
+        $request = self::findAffiliated()
             ->query($query)
             ->count($count);
 
@@ -225,7 +225,7 @@ final class Dadata extends Facade
         int $count = 10,
         ?string $kpp = null
     ): CollectionResponse {
-        $request = static::findBank()
+        $request = self::findBank()
             ->query($query)
             ->count($count);
 
@@ -256,7 +256,7 @@ final class Dadata extends Facade
         ?PartyType $type = null,
         array $status = []
     ): CollectionResponse {
-        $request = static::findParty()
+        $request = self::findParty()
             ->query($query)
             ->count($count);
 
@@ -264,11 +264,11 @@ final class Dadata extends Facade
             $request->kpp($kpp);
         }
 
-        if ($branchType !== null) {
+        if ($branchType instanceof \Ex3mm\Dadata\Enums\PartyBranchType) {
             $request->branchType($branchType);
         }
 
-        if ($type !== null) {
+        if ($type instanceof \Ex3mm\Dadata\Enums\PartyType) {
             $request->type($type);
         }
 
@@ -286,7 +286,7 @@ final class Dadata extends Facade
      */
     public static function getCleanAddress(string $address): CollectionResponse
     {
-        return static::cleanAddress()
+        return self::cleanAddress()
             ->query($address)
             ->get();
     }
@@ -309,7 +309,7 @@ final class Dadata extends Facade
             throw new ValidationException('getCustom() принимает только полный URL endpoint');
         }
 
-        $request = static::custom()
+        $request = self::custom()
             ->method($method)
             ->url($endpoint);
 

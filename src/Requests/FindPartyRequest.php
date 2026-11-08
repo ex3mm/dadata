@@ -125,11 +125,11 @@ final class FindPartyRequest extends AbstractRequest
             $data['kpp'] = $this->kpp;
         }
 
-        if ($this->branchType !== null) {
+        if ($this->branchType instanceof \Ex3mm\Dadata\Enums\PartyBranchType) {
             $data['branch_type'] = $this->branchType->value;
         }
 
-        if ($this->type !== null) {
+        if ($this->type instanceof \Ex3mm\Dadata\Enums\PartyType) {
             $data['type'] = $this->type->value;
         }
 

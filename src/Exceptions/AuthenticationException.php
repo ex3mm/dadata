@@ -53,8 +53,6 @@ final class AuthenticationException extends DadataException
 
     /**
      * Создаёт исключение для ошибки 401 (невалидный API-ключ).
-     *
-     * @return self
      */
     public static function invalidApiKey(): self
     {
@@ -66,8 +64,6 @@ final class AuthenticationException extends DadataException
 
     /**
      * Создаёт исключение для ошибки 403 (доступ запрещён).
-     *
-     * @return self
      */
     public static function forbidden(): self
     {

@@ -102,7 +102,7 @@ final class SuggestFioRequest extends AbstractRequest
             $data['parts'] = $this->parts;
         }
 
-        if ($this->gender !== null) {
+        if ($this->gender instanceof \Ex3mm\Dadata\Enums\Gender) {
             $data['gender'] = $this->gender->value;
         }
 

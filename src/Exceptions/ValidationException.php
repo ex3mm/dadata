@@ -41,7 +41,7 @@ final class ValidationException extends DadataException
         $decodedBody = json_decode($body, true);
         if (is_array($decodedBody) && isset($decodedBody['errors']) && is_array($decodedBody['errors'])) {
             // Фильтруем только строковые значения для соответствия типу list<string>
-            $errors = array_values(array_filter($decodedBody['errors'], 'is_string'));
+            $errors = array_values(array_filter($decodedBody['errors'], is_string(...)));
         }
 
         $message = "Ошибка валидации параметров запроса (HTTP {$statusCode})";

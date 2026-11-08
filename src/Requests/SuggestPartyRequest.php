@@ -120,7 +120,7 @@ final class SuggestPartyRequest extends AbstractRequest
             'count' => $this->count,
         ];
 
-        if ($this->type !== null) {
+        if ($this->type instanceof \Ex3mm\Dadata\Enums\PartyType) {
             $data['type'] = $this->type->value;
         }
 
