@@ -91,13 +91,10 @@ abstract class AbstractEndpoint implements EndpointInterface
     {
         $url = $this->getBaseUrl() . $this->getPath();
 
-        /** @var ResponseInterface $response */
-        $response = $this->client->getClient()->request('POST', $url, [
+        return $this->client->getClient()->request('POST', $url, [
             'json'    => $body,
             'headers' => $this->getHeaders(),
         ]);
-
-        return $response;
     }
 
     /**
@@ -137,9 +134,9 @@ abstract class AbstractEndpoint implements EndpointInterface
 
         throw match ($statusCode) {
             401, 403 => AuthenticationException::fromResponse($response),
-            429 => RateLimitException::fromResponse($response),
+            429      => RateLimitException::fromResponse($response),
             400, 422 => ValidationException::fromResponse($response),
-            default => ApiException::fromResponse($response),
+            default  => ApiException::fromResponse($response),
         };
     }
 }

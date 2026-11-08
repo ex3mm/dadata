@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Client\Middleware;
 
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise\PromiseInterface;
+use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -86,7 +86,7 @@ final class RetryMiddleware
                     throw $exception;
                 }
             );
-        } catch (ConnectException|RequestException $exception) {
+        } catch (NetworkExceptionInterface|RequestException $exception) {
             if ($this->shouldRetryException($exception) && $attempt < $this->maxAttempts) {
                 $this->logger->warning(
                     "Повторная попытка {$attempt}/{$this->maxAttempts} после исключения для {$request->getUri()}",
@@ -118,21 +118,32 @@ final class RetryMiddleware
      */
     private function shouldRetryException(\Throwable $exception): bool
     {
-        if ($exception instanceof ConnectException) {
+        if ($exception instanceof NetworkExceptionInterface) {
             return true;
         }
 
-        if ($exception instanceof RequestException) {
-            $response = $exception->getResponse();
-
-            if (!$response instanceof \Psr\Http\Message\ResponseInterface) {
-                return true;
-            }
-
-            return $this->shouldRetry($response);
+        if (!$exception instanceof RequestException) {
+            return false;
         }
 
-        return false;
+        $response = $this->getExceptionResponse($exception);
+
+        return !$response instanceof \Psr\Http\Message\ResponseInterface || $this->shouldRetry($response);
+    }
+
+    /**
+     * Guzzle 7 предоставляет getResponse() у RequestException, Guzzle 8 — только
+     * у подклассов с ответом. Проверяем наличие метода для совместимости обеих веток.
+     */
+    private function getExceptionResponse(\Throwable $exception): ?ResponseInterface
+    {
+        if (!method_exists($exception, 'getResponse')) {
+            return null;
+        }
+
+        $response = $exception->getResponse();
+
+        return $response instanceof ResponseInterface ? $response : null;
     }
 
     /**

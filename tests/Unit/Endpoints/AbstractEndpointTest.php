@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Tests\Unit\Endpoints;
 
+use Ex3mm\Dadata\Cache\InMemoryCache;
+use Ex3mm\Dadata\Client\DadataClient;
+use Ex3mm\Dadata\Client\GuzzleClientFactory;
 use Ex3mm\Dadata\Config\DadataConfig;
 use Ex3mm\Dadata\Contracts\DtoInterface;
 use Ex3mm\Dadata\Endpoints\AbstractEndpoint;
@@ -17,6 +20,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Тесты для AbstractEndpoint.
@@ -187,7 +191,14 @@ final class AbstractEndpointTest extends TestCase
             'secret_key' => 'test-secret',
         ]);
 
-        return new TestEndpoint($httpClient, $config);
+        $client = new DadataClient(
+            $config,
+            new GuzzleClientFactory($config),
+            new NullLogger(),
+            new InMemoryCache()
+        );
+
+        return new TestEndpoint($httpClient, $client, $config);
     }
 }
 
@@ -196,12 +207,12 @@ final class AbstractEndpointTest extends TestCase
  */
 class TestEndpoint extends AbstractEndpoint
 {
-    private Client $mockClient;
-
-    public function __construct(Client $mockClient, DadataConfig $config)
-    {
-        $this->mockClient = $mockClient;
-        $this->config     = $config;
+    public function __construct(
+        private readonly Client $mockClient,
+        DadataClient $client,
+        DadataConfig $config,
+    ) {
+        parent::__construct($client, $config);
     }
 
     protected function getPath(): string
@@ -223,14 +234,11 @@ class TestEndpoint extends AbstractEndpoint
     {
         $url = $this->getBaseUrl() . $this->getPath();
 
-        /** @var ResponseInterface $response */
-        $response = $this->mockClient->request('POST', $url, [
+        return $this->mockClient->request('POST', $url, [
             'json'        => $body,
             'headers'     => $this->getHeaders(),
             'http_errors' => false, // Отключаем автоматический выброс исключений для 4xx/5xx
         ]);
-
-        return $response;
     }
 }
 

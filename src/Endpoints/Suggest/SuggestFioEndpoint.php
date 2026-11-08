@@ -50,7 +50,6 @@ final class SuggestFioEndpoint extends AbstractEndpoint
             }
         }
 
-        /** @var array<string, mixed> $data */
         return new CollectionResponse(
             items: $items,
             raw: $body,

@@ -18,14 +18,14 @@ final class RateLimiterMiddlewareTest extends TestCase
 {
     public function testAllowsRequestsWithinLimit(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([]);
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
 
@@ -42,7 +42,7 @@ final class RateLimiterMiddlewareTest extends TestCase
 
     public function testBlocksRequestsExceedingLimit(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         // Simulate 3 requests already made in the current second
         $now        = microtime(true);
@@ -54,7 +54,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
 
@@ -65,7 +65,7 @@ final class RateLimiterMiddlewareTest extends TestCase
 
     public function testRemovesTimestampsOlderThanOneSecond(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         $now = microtime(true);
         // Mix of old and recent timestamps
@@ -81,7 +81,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
         $callable($request, []);
@@ -92,7 +92,7 @@ final class RateLimiterMiddlewareTest extends TestCase
 
     public function testResetsCounterAfterTimeWindow(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         // Simulate 3 requests made 1.5 seconds ago (all expired)
         $now        = microtime(true);
@@ -104,7 +104,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $rateLimiter = new DadataRateLimiter($cache, 3, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
 
@@ -120,14 +120,14 @@ final class RateLimiterMiddlewareTest extends TestCase
 
     public function testHandlesEmptyCache(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([]);
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 5, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
 
@@ -141,14 +141,14 @@ final class RateLimiterMiddlewareTest extends TestCase
 
     public function testHandlesNonArrayCacheValue(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn('invalid');
         $cache->method('set')->willReturn(true);
 
         $rateLimiter = new DadataRateLimiter($cache, 5, 1);
         $middleware  = new RateLimiterMiddleware($rateLimiter, 'test_key');
         $handler     = fn () => Create::promiseFor(null);
-        $request     = $this->createMock(RequestInterface::class);
+        $request     = $this->createStub(RequestInterface::class);
 
         $callable = $middleware($handler);
 
@@ -164,7 +164,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         $cache = new \Ex3mm\Dadata\Cache\InMemoryCache();
 
         $handler = fn () => Create::promiseFor(null);
-        $request = $this->createMock(RequestInterface::class);
+        $request = $this->createStub(RequestInterface::class);
 
         // Создаём два клиента с разными ключами и лимитом 3 запроса/сек
         $rateLimiterA = new DadataRateLimiter($cache, 3, 1);
@@ -184,7 +184,7 @@ final class RateLimiterMiddlewareTest extends TestCase
         try {
             $callableA($request, []);
             $this->fail('Client A should throw RateLimitException after 3 requests');
-        } catch (\Ex3mm\Dadata\Exceptions\RateLimitException $e) {
+        } catch (\Ex3mm\Dadata\Exceptions\RateLimitException) {
             $this->assertTrue(true, 'Client A correctly blocked after exceeding limit');
         }
 

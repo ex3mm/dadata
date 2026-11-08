@@ -25,7 +25,7 @@ final class SuggestAddressEndpointTest extends TestCase
             'secret_key'           => 'test',
             'base_url_suggestions' => 'https://suggestions.dadata.ru',
         ]);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
         $client  = new DadataClient($config, $factory, $logger, $cache);
@@ -146,7 +146,7 @@ final class SuggestAddressEndpointTest extends TestCase
         // Мокируем HTTP-клиент, который вернёт невалидный JSON
         $httpResponse = new Response(200, [], '{invalid json}');
 
-        $clientMock = $this->createMock(\GuzzleHttp\ClientInterface::class);
+        $clientMock = $this->createStub(\GuzzleHttp\ClientInterface::class);
         $clientMock->method('request')->willReturn($httpResponse);
 
         // Подменяем клиент через рефлексию
