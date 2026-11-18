@@ -58,7 +58,11 @@ final class LoggingMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
-                function (ResponseInterface $response) use ($startTime, $request): ResponseInterface {
+                function (mixed $response) use ($startTime, $request): ResponseInterface {
+                    if (!$response instanceof ResponseInterface) {
+                        throw new \UnexpectedValueException('HTTP handler returned an invalid response.');
+                    }
+
                     $duration = round((microtime(true) - $startTime) * 1000, 2);
 
                     // Проверяем статус кеша
@@ -99,7 +103,11 @@ final class LoggingMiddleware
 
                     return $response;
                 },
-                function (\Throwable $exception) use ($startTime, $request): never {
+                function (mixed $exception) use ($startTime, $request): never {
+                    if (!$exception instanceof \Throwable) {
+                        throw new \UnexpectedValueException('HTTP handler rejected the request without an exception.');
+                    }
+
                     $duration = round((microtime(true) - $startTime) * 1000, 2);
 
                     $this->logger->error(

@@ -25,7 +25,6 @@ final class CustomRequest
     private array $query = [];
     /** @var array<int|string, mixed>|string|null */
     private array|string|null $body = null;
-    private bool $useJson           = true;
 
     public function __construct(
         private readonly DadataClient $client,
@@ -124,8 +123,7 @@ final class CustomRequest
      */
     public function json(array $body): static
     {
-        $this->body    = $body;
-        $this->useJson = true;
+        $this->body = $body;
 
         return $this;
     }
@@ -135,8 +133,7 @@ final class CustomRequest
      */
     public function body(string $body): static
     {
-        $this->body    = $body;
-        $this->useJson = false;
+        $this->body = $body;
 
         return $this;
     }
@@ -159,7 +156,15 @@ final class CustomRequest
 
         $headers = array_merge($headers, $this->headers);
 
-        /** @var array<string, mixed> $options */
+        /**
+         * @var array{
+         *     headers: array<string, string>,
+         *     query: array<string, mixed>,
+         *     http_errors: false,
+         *     json?: array<int|string, mixed>,
+         *     body?: string
+         * } $options
+         */
         $options = [
             'headers'     => $headers,
             'query'       => $this->query,
@@ -167,7 +172,7 @@ final class CustomRequest
         ];
 
         if ($this->body !== null) {
-            if ($this->useJson && is_array($this->body)) {
+            if (is_array($this->body)) {
                 $options['json'] = $this->body;
             } else {
                 $options['body'] = $this->body;

@@ -63,7 +63,6 @@ final class PostCacheMiddleware
                         body: $cachedData['body']
                     );
 
-                    /** @var PromiseInterface */
                     return \GuzzleHttp\Promise\Create::promiseFor($response);
                 }
             } catch (\Throwable $e) {
@@ -74,7 +73,11 @@ final class PostCacheMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
-                function (ResponseInterface $response) use ($cacheKey): ResponseInterface {
+                function (mixed $response) use ($cacheKey): ResponseInterface {
+                    if (!$response instanceof ResponseInterface) {
+                        throw new \UnexpectedValueException('HTTP handler returned an invalid response.');
+                    }
+
                     $statusCode = $response->getStatusCode();
 
                     // Кешируем только успешные ответы (2xx)

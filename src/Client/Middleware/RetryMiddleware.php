@@ -55,7 +55,11 @@ final class RetryMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
-                function (ResponseInterface $response) use ($handler, $request, $options, $attempt): ResponseInterface|PromiseInterface {
+                function (mixed $response) use ($handler, $request, $options, $attempt): ResponseInterface|PromiseInterface {
+                    if (!$response instanceof ResponseInterface) {
+                        throw new \UnexpectedValueException('HTTP handler returned an invalid response.');
+                    }
+
                     if ($this->shouldRetry($response) && $attempt < $this->maxAttempts) {
                         $this->logger->warning(
                             "Повторная попытка {$attempt}/{$this->maxAttempts} для {$request->getUri()}",
@@ -70,7 +74,11 @@ final class RetryMiddleware
 
                     return $response;
                 },
-                function (\Throwable $exception) use ($handler, $request, $options, $attempt): PromiseInterface {
+                function (mixed $exception) use ($handler, $request, $options, $attempt): PromiseInterface {
+                    if (!$exception instanceof \Throwable) {
+                        throw new \UnexpectedValueException('HTTP handler rejected the request without an exception.');
+                    }
+
                     if ($this->shouldRetryException($exception) && $attempt < $this->maxAttempts) {
                         $this->logger->warning(
                             "Повторная попытка {$attempt}/{$this->maxAttempts} после ошибки для {$request->getUri()}",
