@@ -74,6 +74,15 @@ final class FindAffiliatedRequest extends AbstractRequest
                 errors: ['max_length'],
             );
         }
+
+        if ($this->count > 300) {
+            throw new ValidationException(
+                message: 'Количество результатов не может быть больше 300',
+                statusCode: 0,
+                responseBody: '',
+                errors: ['max_count'],
+            );
+        }
     }
 
     /**

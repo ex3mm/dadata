@@ -117,6 +117,13 @@ return [
     /** Включить ограничение частоты запросов */
     'rate_limit_enabled' => (bool) env('DADATA_RATE_LIMIT_ENABLED', true),
 
-    /** Максимальное количество запросов в секунду */
-    'rate_limit' => (int) env('DADATA_RATE_LIMIT', 20),
+    /**
+     * Максимальное количество запросов к Suggestions API в секунду.
+     */
+    'rate_limit_suggestions' => (int) env('DADATA_RATE_LIMIT_SUGGESTIONS', 30),
+
+    /**
+     * Максимальное количество запросов к Cleaner API в секунду.
+     */
+    'rate_limit_cleaner' => (int) env('DADATA_RATE_LIMIT_CLEANER', 20),
 ];

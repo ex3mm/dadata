@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Tests\Unit\Client\Middleware;
 
+use Ex3mm\Dadata\Cache\InMemoryCache;
 use Ex3mm\Dadata\Client\DadataRateLimiter;
 use Ex3mm\Dadata\Client\Middleware\RateLimiterMiddleware;
+use Ex3mm\Dadata\Exceptions\RateLimitException;
 use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -61,6 +64,24 @@ final class RateLimiterMiddlewareTest extends TestCase
         // 4th request should throw RateLimitException
         $this->expectException(\Ex3mm\Dadata\Exceptions\RateLimitException::class);
         $callable($request, []);
+    }
+
+    public function testAppliesLimitOnlyToConfiguredBaseUrl(): void
+    {
+        $rateLimiter = new DadataRateLimiter(new InMemoryCache(), 1, 1);
+        $middleware  = new RateLimiterMiddleware(
+            $rateLimiter,
+            'suggestions',
+            'https://suggestions.example.test/api',
+        );
+        $callable = $middleware(fn () => Create::promiseFor(null));
+
+        $callable(new Request('POST', 'https://cleaner.example.test/api/clean'), []);
+        $callable(new Request('POST', 'https://suggestions.example.test/api/suggest'), []);
+
+        $this->expectException(RateLimitException::class);
+
+        $callable(new Request('POST', 'https://suggestions.example.test/api/suggest'), []);
     }
 
     public function testRemovesTimestampsOlderThanOneSecond(): void

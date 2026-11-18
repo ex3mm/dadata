@@ -18,6 +18,11 @@ use Psr\SimpleCache\CacheInterface;
 final class PostCacheMiddleware
 {
     /**
+     * Заголовок со статусом кеширования.
+     */
+    public const string CACHE_STATUS_HEADER = 'X-Dadata-Cache';
+
+    /**
      * @param CacheInterface $cache PSR-16 кеш
      * @param int $ttl Время жизни кеша в секундах
      * @param LoggerInterface|null $logger Логгер для отладки (опционально)
@@ -59,7 +64,7 @@ final class PostCacheMiddleware
                     // Восстанавливаем ответ из кеша
                     $response = new \GuzzleHttp\Psr7\Response(
                         status: $cachedData['status'],
-                        headers: array_merge($cachedData['headers'], ['X-Kevinrob-Cache' => 'HIT']),
+                        headers: array_merge($cachedData['headers'], [self::CACHE_STATUS_HEADER => 'HIT']),
                         body: $cachedData['body']
                     );
 
@@ -94,7 +99,7 @@ final class PostCacheMiddleware
                             $response = $response->withBody(\GuzzleHttp\Psr7\Utils::streamFor($body));
 
                             // Добавляем заголовок MISS
-                            $response = $response->withHeader('X-Kevinrob-Cache', 'MISS');
+                            $response = $response->withHeader(self::CACHE_STATUS_HEADER, 'MISS');
                         } catch (\Throwable $e) {
                             $this->logger?->error('[CACHE] Error saving to cache: ' . $e->getMessage());
                         }

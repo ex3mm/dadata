@@ -1,24 +1,85 @@
-# ex3mm/dadata
+# DaData для PHP
 
-PHP-клиент для DaData API. Поддерживает Laravel 12 и 13, а также standalone PHP 8.3+.
+[![Tests](https://img.shields.io/github/actions/workflow/status/ex3mm/dadata/tests.yml?branch=main&style=flat-square&logo=github&label=tests)](https://github.com/ex3mm/dadata/actions/workflows/tests.yml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/ex3mm/dadata?style=flat-square&logo=packagist&label=stable)](https://packagist.org/packages/ex3mm/dadata)
+[![Total Downloads](https://img.shields.io/packagist/dt/ex3mm/dadata?style=flat-square&logo=packagist&label=downloads)](https://packagist.org/packages/ex3mm/dadata)
+[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-12%20%7C%2013-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com/)
+[![License](https://img.shields.io/packagist/l/ex3mm/dadata?style=flat-square&label=license)](LICENSE)
+
+[![PHPStan](https://img.shields.io/github/check-runs/ex3mm/dadata/main?nameFilter=phpstan&style=flat-square&label=PHPStan)](https://github.com/ex3mm/dadata/actions/workflows/tests.yml)
+[![Rector](https://img.shields.io/github/check-runs/ex3mm/dadata/main?nameFilter=rector&style=flat-square&label=Rector)](https://github.com/ex3mm/dadata/actions/workflows/tests.yml)
+[![Coding Style](https://img.shields.io/github/check-runs/ex3mm/dadata/main?nameFilter=cs%3Acheck&style=flat-square&label=coding%20style)](https://github.com/ex3mm/dadata/actions/workflows/tests.yml)
+
+<p>
+  <strong>Типизированный PHP-клиент для DaData API (<a href="https://dadata.ru/">dadata.ru</a>)</strong><br>
+  Подсказки, стандартизация и поиск адресов, организаций, банков и ФИО.
+</p>
+
+## Требования
+
+| Среда | Поддерживаемые версии | Статус |
+|:---|:---|:---|
+| **PHP** | `8.3+` | Обязательно |
+| **Laravel** | `12.x` · `13.x` | Опционально |
+
+> [!NOTE]
+> Laravel не обязателен: пакет полноценно работает в standalone PHP.
+
+### Зависимости
+
+| Пакет | Поддерживаемые версии |
+|:---|:---|
+| `guzzlehttp/guzzle` | `^7.16.3` · `^8.5.2` |
+| `psr/log` | `^3.0` |
+| `psr/simple-cache` | `^3.0` |
 
 ## Возможности
 
 - Типизированные DTO-ответы
 - Fluent-builder для построения запросов
 - Единая иерархия исключений
-- HTTP middleware: retry с exponential backoff, sliding window rate limit, кеширование POST-ответов, логирование
-
-## Требования
-
-- PHP 8.3+
-- Laravel 12 или 13 (для Laravel-интеграции)
+- Retry с exponential backoff, настраиваемые timeout и connect timeout
+- Sliding window rate limit
+- Кеширование POST-ответов
+- Логирование HTTP-запросов
+- Laravel auto-discovery через Service Provider, DI через `DadataClientInterface`, Facade
 
 ## Установка
 
 ```bash
 composer require ex3mm/dadata
 ```
+
+## Оглавление
+
+- **Начало работы**
+  - [Быстрый старт](#быстрый-старт)
+    - [Standalone](#standalone)
+    - [Laravel](#laravel)
+- **Методы**
+  - [Поддерживаемые методы](#endpoints)
+  - **Адреса**
+    - [`suggestAddress()`](#suggestaddress)
+    - [`cleanAddress()`](#cleanaddress)
+  - **Организации и ИП**
+    - [`suggestParty()`](#suggestparty)
+    - [`findParty()`](#findparty)
+    - [`findAffiliated()`](#findaffiliated)
+  - **Банки**
+    - [`suggestBank()`](#suggestbank)
+    - [`findBank()`](#findbank)
+  - **ФИО**
+    - [`suggestFio()`](#suggestfio)
+  - **Произвольный запрос**
+    - [`custom()`](#custom)
+- **Справочник**
+  - [Формат ответа](#формат-ответа)
+  - [Enums](#enums)
+  - [Конфигурация](#конфигурация)
+  - [Middleware](#middleware)
+  - [Исключения](#исключения)
+  - [Лицензия](#лицензия)
 
 ---
 
@@ -129,15 +190,15 @@ php artisan vendor:publish --tag=dadata-config
 
 | Метод | Описание | HTTP endpoint |
 |---|---|---|
-| `suggestAddress()` | Подсказки адресов | `.../suggest/address` |
-| `cleanAddress()` | Стандартизация адреса | `.../clean/address` |
-| `suggestBank()` | Подсказки банков | `.../suggest/bank` |
-| `findBank()` | Поиск банка по БИК/ИНН/SWIFT | `.../findById/bank` |
-| `suggestParty()` | Подсказки организаций | `.../suggest/party` |
-| `findParty()` | Поиск организации по ИНН/ОГРН | `.../findById/party` |
-| `findAffiliated()` | Аффилированные компании по ИНН | `.../findAffiliated/party` |
-| `suggestFio()` | Подсказки ФИО | `.../suggest/fio` |
-| `custom()` | Произвольный запрос к DaData | любой URL |
+| [`suggestAddress()`](#suggestaddress) | Подсказки адресов | `.../suggest/address` |
+| [`cleanAddress()`](#cleanaddress) | Стандартизация адреса | `.../clean/address` |
+| [`suggestBank()`](#suggestbank) | Подсказки банков | `.../suggest/bank` |
+| [`findBank()`](#findbank) | Поиск банка по БИК/ИНН/SWIFT | `.../findById/bank` |
+| [`suggestParty()`](#suggestparty) | Подсказки организаций | `.../suggest/party` |
+| [`findParty()`](#findparty) | Поиск организации по ИНН/ОГРН | `.../findById/party` |
+| [`findAffiliated()`](#findaffiliated) | Аффилированные компании по ИНН | `.../findAffiliated/party` |
+| [`suggestFio()`](#suggestfio) | Подсказки ФИО | `.../suggest/fio` |
+| [`custom()`](#custom) | Произвольный запрос к DaData | любой URL |
 
 Базовые URL: `https://suggestions.dadata.ru/suggestions/api/4_1/rs` и `https://cleaner.dadata.ru/api/v1`.
 
@@ -280,6 +341,8 @@ $response = $client->suggestParty()
 
 Возвращает `CollectionResponse<PartyResponseDto>`.
 
+`PartyDataDto::$okvedType` — версия справочника ОКВЭД: `2001` или `2014`.
+
 ---
 
 ### `findParty()`
@@ -332,7 +395,7 @@ $response = $client->findAffiliated()
 | Метод | Описание |
 |---|---|
 | `query(string)` | ИНН учредителя или руководителя (обязательный) |
-| `count(int)` | Количество результатов (фактический предел определяется API DaData) |
+| `count(int)` | Количество результатов (макс. 300) |
 | `scope(array)` | `AffiliatedScope::FOUNDERS` и/или `AffiliatedScope::MANAGERS` |
 
 Возвращает `CollectionResponse<AffiliatedPartyResponseDto>`.
@@ -538,7 +601,8 @@ $rawBody = $client->custom()
 | `DADATA_LOG_RESPONSE_BODY` | `false` | Логировать тело ответа |
 | `DADATA_LOG_CHANNEL` | `null` | Канал логирования Laravel |
 | `DADATA_RATE_LIMIT_ENABLED` | `true` | Включить rate limit |
-| `DADATA_RATE_LIMIT` | `20` | Лимит запросов в секунду |
+| `DADATA_RATE_LIMIT_SUGGESTIONS` | `30` | Лимит запросов Suggestions в секунду |
+| `DADATA_RATE_LIMIT_CLEANER` | `20` | Лимит запросов Cleaner в секунду |
 
 ### Standalone
 
@@ -547,15 +611,16 @@ $client = DadataFactory::create(
     apiKey: 'your_api_key',
     secretKey: 'your_secret_key',
     options: [
-        'timeout'            => 10,
-        'retry_attempts'     => 2,
-        'retry_delay'        => 150,
-        'cache_enabled'      => true,
-        'cache_ttl'          => 600,
-        'rate_limit_enabled' => true,
-        'rate_limit'         => 15,
-        'log_request_body'   => false,
-        'log_response_body'  => false,
+        'timeout'                => 10,
+        'retry_attempts'         => 2,
+        'retry_delay'            => 150,
+        'cache_enabled'          => true,
+        'cache_ttl'              => 600,
+        'rate_limit_enabled'     => true,
+        'rate_limit_suggestions' => 30,
+        'rate_limit_cleaner'     => 20,
+        'log_request_body'       => false,
+        'log_response_body'      => false,
     ]
 );
 ```
@@ -578,7 +643,7 @@ $client = DadataFactory::create(
 
 ### Логирование
 
-Логируется метод, URL, статус ответа и длительность. Тело запроса и ответа пишется только при включённых флагах `log_request_body` / `log_response_body`. При кешировании в логах виден служебный заголовок `X-Kevinrob-Cache: HIT/MISS` (историческое имя заголовка, не означает зависимость от пакета Kevinrob).
+Логируется метод, URL, статус ответа и длительность. Тело запроса и ответа пишется только при включённых флагах `log_request_body` / `log_response_body`. При кешировании в логах виден служебный заголовок `X-Dadata-Cache: HIT/MISS`.
 
 ---
 

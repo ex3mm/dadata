@@ -37,16 +37,23 @@ final class GuzzleClientFactory
         // Порядок middleware (выполняются снизу вверх при запросе):
         // 1. RateLimiterMiddleware
         if ($this->config->rateLimit->enabled) {
-            $rateLimiter = new DadataRateLimiter(
-                $cache,
-                $this->config->rateLimit->limit,
-                1 // decay seconds
-            );
-            // Используем хеш API ключа как уникальный идентификатор для изоляции лимитов между клиентами
-            $rateLimitKey = 'dadata_api:' . hash('xxh3', $this->config->apiKey);
+            $apiKeyHash = hash('xxh3', $this->config->apiKey);
+
             $stack->push(
-                new RateLimiterMiddleware($rateLimiter, $rateLimitKey),
-                'rate_limiter'
+                new RateLimiterMiddleware(
+                    new DadataRateLimiter($cache, $this->config->rateLimit->suggestionsLimit, 1),
+                    'dadata_api:suggestions:' . $apiKeyHash,
+                    $this->config->baseUrlSuggestions,
+                ),
+                'rate_limiter_suggestions'
+            );
+            $stack->push(
+                new RateLimiterMiddleware(
+                    new DadataRateLimiter($cache, $this->config->rateLimit->cleanerLimit, 1),
+                    'dadata_api:cleaner:' . $apiKeyHash,
+                    $this->config->baseUrlCleaner,
+                ),
+                'rate_limiter_cleaner'
             );
         }
 

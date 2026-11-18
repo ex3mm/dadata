@@ -123,21 +123,22 @@ final class DadataConfigTest extends TestCase
     public function test_all_fields_are_correctly_typed(): void
     {
         $config = DadataConfig::fromArray([
-            'api_key'            => 'test_api',
-            'secret_key'         => 'test_secret',
-            'connect_timeout'    => 15,
-            'timeout'            => 45,
-            'cache_enabled'      => false,
-            'cache_ttl'          => 7200,
-            'cache_store'        => 'redis',
-            'log_level'          => 'debug',
-            'log_request_body'   => true,
-            'log_response_body'  => true,
-            'log_channel'        => 'dadata',
-            'rate_limit_enabled' => false,
-            'rate_limit'         => 10,
-            'retry_attempts'     => 5,
-            'retry_delay'        => 200,
+            'api_key'                => 'test_api',
+            'secret_key'             => 'test_secret',
+            'connect_timeout'        => 15,
+            'timeout'                => 45,
+            'cache_enabled'          => false,
+            'cache_ttl'              => 7200,
+            'cache_store'            => 'redis',
+            'log_level'              => 'debug',
+            'log_request_body'       => true,
+            'log_response_body'      => true,
+            'log_channel'            => 'dadata',
+            'rate_limit_enabled'     => false,
+            'rate_limit_suggestions' => 25,
+            'rate_limit_cleaner'     => 15,
+            'retry_attempts'         => 5,
+            'retry_delay'            => 200,
         ]);
 
         $this->assertSame(15, $config->http->connectTimeout);
@@ -150,7 +151,8 @@ final class DadataConfigTest extends TestCase
         $this->assertTrue($config->log->responseBody);
         $this->assertSame('dadata', $config->log->channel);
         $this->assertFalse($config->rateLimit->enabled);
-        $this->assertSame(10, $config->rateLimit->limit);
+        $this->assertSame(25, $config->rateLimit->suggestionsLimit);
+        $this->assertSame(15, $config->rateLimit->cleanerLimit);
         $this->assertSame(5, $config->http->retryAttempts);
         $this->assertSame(200, $config->http->retryDelay);
     }

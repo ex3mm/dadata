@@ -64,12 +64,11 @@ final class LoggingMiddleware
 
                     // Проверяем статус кеша
                     $cacheStatus = '';
-                    if ($response->hasHeader('X-Kevinrob-Cache')) {
-                        $cacheHeader = $response->getHeaderLine('X-Kevinrob-Cache');
+                    if ($response->hasHeader(PostCacheMiddleware::CACHE_STATUS_HEADER)) {
+                        $cacheHeader = $response->getHeaderLine(PostCacheMiddleware::CACHE_STATUS_HEADER);
                         $cacheStatus = match ($cacheHeader) {
                             'HIT'   => ' [CACHED]',
                             'MISS'  => ' [NOT CACHED]',
-                            'STALE' => ' [STALE CACHE]',
                             default => '',
                         };
                     }

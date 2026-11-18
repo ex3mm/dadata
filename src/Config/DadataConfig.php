@@ -24,7 +24,8 @@ use Ex3mm\Dadata\Exceptions\ConfigurationException;
  *   log_response_body?: bool,
  *   log_channel?: string|null,
  *   rate_limit_enabled?: bool,
- *   rate_limit?: positive-int,
+ *   rate_limit_suggestions?: positive-int,
+ *   rate_limit_cleaner?: positive-int,
  *   retry_attempts?: int<0, max>,
  *   retry_delay?: positive-int,
  * }
