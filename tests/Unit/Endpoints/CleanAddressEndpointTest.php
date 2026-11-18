@@ -25,7 +25,7 @@ final class CleanAddressEndpointTest extends TestCase
             'base_url_cleaner' => 'https://cleaner.dadata.ru',
         ]);
 
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
         $client  = new DadataClient($config, $factory, $logger, $cache);

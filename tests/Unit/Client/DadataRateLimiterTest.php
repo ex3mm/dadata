@@ -43,11 +43,9 @@ final class DadataRateLimiterTest extends TestCase
             ->method('set')
             ->with(
                 $this->equalTo('dadata_rate_limiter_' . self::TEST_KEY),
-                $this->callback(function ($timestamps) {
-                    return is_array($timestamps)
-                        && count($timestamps) === 1
-                        && is_float($timestamps[0]);
-                }),
+                $this->callback(fn ($timestamps) => is_array($timestamps)
+                    && count($timestamps) === 1
+                    && is_float($timestamps[0])),
                 self::DECAY_SECONDS + 1
             )
             ->willReturn(true);
@@ -131,12 +129,12 @@ final class DadataRateLimiterTest extends TestCase
             ->method('set')
             ->with(
                 $this->equalTo('dadata_rate_limiter_' . self::TEST_KEY),
-                $this->callback(function ($timestamps) {
+                $this->callback(
                     // Старые timestamps отфильтрованы, остался только новый
-                    return is_array($timestamps)
-                        && count($timestamps) === 1
-                        && is_float($timestamps[0]);
-                }),
+                    fn ($timestamps) => is_array($timestamps)
+                    && count($timestamps) === 1
+                    && is_float($timestamps[0])
+                ),
                 self::DECAY_SECONDS + 1
             )
             ->willReturn(true);
@@ -170,7 +168,7 @@ final class DadataRateLimiterTest extends TestCase
             $timestamps[] = $now - 0.1;
         }
 
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn($timestamps);
 
         $rateLimiter = new DadataRateLimiter(
@@ -202,7 +200,7 @@ final class DadataRateLimiterTest extends TestCase
             $timestamps[] = $now - 0.1;
         }
 
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn($timestamps);
 
         $rateLimiter = new DadataRateLimiter(
@@ -225,7 +223,7 @@ final class DadataRateLimiterTest extends TestCase
      */
     public function test_too_many_attempts_returns_false_for_empty_cache(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([]);
 
         $rateLimiter = new DadataRateLimiter(
@@ -249,7 +247,7 @@ final class DadataRateLimiterTest extends TestCase
      */
     public function test_available_in_returns_zero_when_limit_available(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([]);
 
         $rateLimiter = new DadataRateLimiter(
@@ -284,7 +282,7 @@ final class DadataRateLimiterTest extends TestCase
             $timestamps[] = $now - 0.1;
         }
 
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn($timestamps);
 
         $rateLimiter = new DadataRateLimiter(
@@ -310,7 +308,7 @@ final class DadataRateLimiterTest extends TestCase
      */
     public function test_available_in_returns_zero_for_empty_cache(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([]);
 
         $rateLimiter = new DadataRateLimiter(
@@ -339,7 +337,7 @@ final class DadataRateLimiterTest extends TestCase
         // Создаем timestamp, который уже вышел за пределы decay period
         $oldTimestamp = $now - self::DECAY_SECONDS - 1.0;
 
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn([$oldTimestamp]);
 
         $rateLimiter = new DadataRateLimiter(
@@ -372,7 +370,7 @@ final class DadataRateLimiterTest extends TestCase
             $now - 0.1,
         ];
 
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn($timestamps);
 
         $rateLimiter = new DadataRateLimiter(
@@ -397,7 +395,7 @@ final class DadataRateLimiterTest extends TestCase
      */
     public function test_sequential_attempts_increment_counter(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         $timestampsInCache = [];
 
@@ -445,7 +443,7 @@ final class DadataRateLimiterTest extends TestCase
      */
     public function test_different_keys_have_independent_limits(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         $cacheStorage = [];
 

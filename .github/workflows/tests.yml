@@ -1,0 +1,60 @@
+---
+name: Tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  standalone:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        guzzle: ['7.15.2', '^7.15.2', '8.0.1', '^8.0.1']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      # Laravel 12/Testbench require Guzzle 7; test standalone support independently.
+      - name: Remove Laravel development dependencies
+        run: composer remove --dev orchestra/testbench illuminate/support illuminate/contracts --no-update --no-interaction
+      - name: Select Guzzle version
+        run: composer require 'guzzlehttp/guzzle:${{ matrix.guzzle }}' --no-update --no-interaction
+      - run: composer update --no-interaction --prefer-dist
+      - run: vendor/bin/phpunit --testsuite Unit --no-coverage
+      - run: composer audit --no-dev
+
+  laravel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/phpunit --testsuite Laravel --no-coverage
+
+  quality:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [phpstan, rector, 'cs:check']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-interaction --prefer-dist
+      - name: Run ${{ matrix.check }}
+        run: composer run-script --no-interaction "${{ matrix.check }}"

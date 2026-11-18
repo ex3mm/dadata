@@ -35,8 +35,6 @@ final class NetworkException extends DadataException
      * Создаёт исключение из Guzzle exception.
      *
      * @param GuzzleException $exception Оригинальное исключение Guzzle
-     *
-     * @return self
      */
     public static function fromGuzzleException(GuzzleException $exception): self
     {

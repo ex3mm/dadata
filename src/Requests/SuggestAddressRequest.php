@@ -173,11 +173,11 @@ final class SuggestAddressRequest extends AbstractRequest
             $data['division'] = $this->division;
         }
 
-        if ($this->fromBound !== null) {
+        if ($this->fromBound instanceof \Ex3mm\Dadata\Enums\AddressBound) {
             $data['from_bound'] = ['value' => $this->fromBound->value];
         }
 
-        if ($this->toBound !== null) {
+        if ($this->toBound instanceof \Ex3mm\Dadata\Enums\AddressBound) {
             $data['to_bound'] = ['value' => $this->toBound->value];
         }
 

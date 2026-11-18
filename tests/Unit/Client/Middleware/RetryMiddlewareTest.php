@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Ex3mm\Dadata\Tests\Unit\Client\Middleware;
 
 use Ex3mm\Dadata\Client\Middleware\RetryMiddleware;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -46,7 +49,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetries500Response(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(3, 10, $logger);
 
         $callCount = 0;
@@ -70,7 +73,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetries502Response(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $callCount = 0;
@@ -90,7 +93,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetries503Response(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $callCount = 0;
@@ -110,7 +113,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetries504Response(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $callCount = 0;
@@ -196,7 +199,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testReturns500AfterMaxAttempts(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(3, 10, $logger);
 
         $callCount = 0;
@@ -218,7 +221,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testExponentialBackoff(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(3, 100, $logger);
 
         $callCount = 0;
@@ -246,7 +249,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetriesConnectException(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $callCount = 0;
@@ -272,7 +275,7 @@ final class RetryMiddlewareTest extends TestCase
     {
         $this->expectException(ConnectException::class);
 
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $request = new Request('GET', 'https://api.example.com');
@@ -287,7 +290,7 @@ final class RetryMiddlewareTest extends TestCase
 
     public function testRetriesRequestExceptionWith500(): void
     {
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(2, 10, $logger);
 
         $callCount = 0;
@@ -296,7 +299,7 @@ final class RetryMiddlewareTest extends TestCase
         $handler = function () use (&$callCount, $request) {
             $callCount++;
             if ($callCount === 1) {
-                throw new RequestException('Server error', $request, new Response(500));
+                throw new ServerException('Server error', $request, new Response(500));
             }
             return Create::promiseFor(new Response(200));
         };
@@ -313,16 +316,67 @@ final class RetryMiddlewareTest extends TestCase
     {
         $this->expectException(RequestException::class);
 
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createStub(LoggerInterface::class);
         $middleware = new RetryMiddleware(3, 10, $logger);
 
         $request = new Request('GET', 'https://api.example.com');
 
         $handler = function () use ($request): void {
-            throw new RequestException('Bad request', $request, new Response(400));
+            throw new ClientException('Bad request', $request, new Response(400));
         };
 
         $callable = $middleware($handler);
         $callable($request, [])->wait();
+    }
+
+    public static function exceptionCases(): iterable
+    {
+        foreach ([false, true] as $synchronous) {
+            foreach ([
+                [RequestException::class, null, true],
+                [ClientException::class, 400, false],
+                [ServerException::class, 503, true],
+                [ConnectException::class, null, true],
+                [\GuzzleHttp\Exception\NetworkException::class, null, true],
+                [\GuzzleHttp\Exception\NetworkTimeoutException::class, null, true],
+                [\GuzzleHttp\Exception\ResponseTimeoutException::class, 503, true],
+            ] as [$class, $status, $retry]) {
+                yield $class . ($synchronous ? ' thrown' : ' rejected') => [$class, $status, $retry, $synchronous];
+            }
+        }
+    }
+
+    #[DataProvider('exceptionCases')]
+    public function testExceptionCompatibility(string $class, ?int $status, bool $retry, bool $synchronous): void
+    {
+        if (!class_exists($class)) {
+            $this->markTestSkipped('Exception class only exists in Guzzle 8.');
+        }
+        $request   = new Request('POST', 'https://example.com');
+        $exception = $status === null
+            ? new $class('Transport error', $request)
+            : new $class('Response error', $request, new Response($status));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($retry ? $this->once() : $this->never())->method('warning');
+        $middleware = new RetryMiddleware(2, 0, $logger);
+        $calls      = 0;
+        $handler    = function () use (&$calls, $exception, $synchronous) {
+            if (++$calls === 1) {
+                if ($synchronous) {
+                    throw $exception;
+                }
+                return Create::rejectionFor($exception);
+            }
+            return Create::promiseFor(new Response(200));
+        };
+        try {
+            $response = $middleware($handler)($request, [])->wait();
+            $this->assertTrue($retry);
+            $this->assertSame(200, $response->getStatusCode());
+        } catch (\Throwable $caught) {
+            $this->assertFalse($retry);
+            $this->assertSame($exception, $caught);
+        }
+        $this->assertSame($retry ? 2 : 1, $calls);
     }
 }

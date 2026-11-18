@@ -38,8 +38,8 @@ final class DadataRateLimiterPropertyTest extends TestCase
             $now        = microtime(true);
             $timestamps = $this->generateRandomTimestamps($now);
 
-            // Создаем mock кеша с нашими timestamps
-            $cache = $this->createMockCacheWithTimestamps($timestamps);
+            // Создаем stub кеша с нашими timestamps
+            $cache = $this->createStubCacheWithTimestamps($timestamps);
 
             // Создаем rate limiter
             $rateLimiter = new DadataRateLimiter(
@@ -104,7 +104,7 @@ final class DadataRateLimiterPropertyTest extends TestCase
      */
     public function test_empty_timestamps_returns_empty_array(): void
     {
-        $cache = $this->createMockCacheWithTimestamps([]);
+        $cache = $this->createStubCacheWithTimestamps([]);
 
         $rateLimiter = new DadataRateLimiter(
             storage: $cache,
@@ -134,7 +134,7 @@ final class DadataRateLimiterPropertyTest extends TestCase
             $oldTimestamps[] = $now - self::DECAY_SECONDS - mt_rand(1, 100) / 10;
         }
 
-        $cache = $this->createMockCacheWithTimestamps($oldTimestamps);
+        $cache = $this->createStubCacheWithTimestamps($oldTimestamps);
 
         $rateLimiter = new DadataRateLimiter(
             storage: $cache,
@@ -164,7 +164,7 @@ final class DadataRateLimiterPropertyTest extends TestCase
             $freshTimestamps[] = $now - mt_rand(0, 90) / 100; // 0-0.9 секунды назад
         }
 
-        $cache = $this->createMockCacheWithTimestamps($freshTimestamps);
+        $cache = $this->createStubCacheWithTimestamps($freshTimestamps);
 
         $rateLimiter = new DadataRateLimiter(
             storage: $cache,
@@ -208,7 +208,7 @@ final class DadataRateLimiterPropertyTest extends TestCase
                 }
             }
 
-            $cache = $this->createMockCacheWithTimestamps($timestamps);
+            $cache = $this->createStubCacheWithTimestamps($timestamps);
 
             $rateLimiter = new DadataRateLimiter(
                 storage: $cache,
@@ -244,7 +244,7 @@ final class DadataRateLimiterPropertyTest extends TestCase
         ];
 
         foreach ($invalidData as $index => $data) {
-            $cache = $this->createMock(CacheInterface::class);
+            $cache = $this->createStub(CacheInterface::class);
             $cache->method('get')->willReturn($data);
 
             $rateLimiter = new DadataRateLimiter(
@@ -295,15 +295,13 @@ final class DadataRateLimiterPropertyTest extends TestCase
     }
 
     /**
-     * Создает mock кеша с заданными timestamps.
+     * Создает stub кеша с заданными timestamps.
      *
      * @param list<float> $timestamps
-     *
-     * @return CacheInterface
      */
-    private function createMockCacheWithTimestamps(array $timestamps): CacheInterface
+    private function createStubCacheWithTimestamps(array $timestamps): CacheInterface
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')
             ->willReturn($timestamps);
 

@@ -45,7 +45,6 @@ final readonly class CollectionResponse implements DtoInterface
         $items = [];
         foreach ($this->items as $item) {
             if (is_object($item) && method_exists($item, 'toArray')) {
-                /** @phpstan-ignore-next-line */
                 $items[] = $item->toArray();
             } else {
                 $items[] = $item;

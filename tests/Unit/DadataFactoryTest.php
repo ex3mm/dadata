@@ -44,7 +44,7 @@ final class DadataFactoryTest extends TestCase
 
     public function testCreateClientWithCustomCache(): void
     {
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         $client = DadataFactory::create('test-api-key', 'test-secret-key', [], $cache);
 
@@ -53,7 +53,7 @@ final class DadataFactoryTest extends TestCase
 
     public function testCreateClientWithCustomLogger(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $client = DadataFactory::create('test-api-key', 'test-secret-key', [], null, $logger);
 

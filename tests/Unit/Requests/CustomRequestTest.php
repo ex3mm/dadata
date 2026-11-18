@@ -32,7 +32,7 @@ final class CustomRequestTest extends TestCase
             'secret_key' => 'test-secret',
         ]);
 
-        $cache        = $this->createMock(CacheInterface::class);
+        $cache        = $this->createStub(CacheInterface::class);
         $factory      = new GuzzleClientFactory($this->config);
         $this->client = new DadataClient($this->config, $factory, new NullLogger(), $cache);
 
@@ -110,6 +110,8 @@ final class CustomRequestTest extends TestCase
 
     public function test_custom_request_throws_validation_exception_when_target_is_missing(): void
     {
+        $this->httpClient->expects($this->never())->method('request');
+
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Нужно указать endpoint() или url()');
 

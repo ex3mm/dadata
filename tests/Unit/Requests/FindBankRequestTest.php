@@ -18,9 +18,7 @@ final class FindBankRequestTest extends TestCase
     {
         parent::setUp();
 
-        $endpoint = $this->getMockBuilder(AbstractEndpoint::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $endpoint      = $this->createStub(AbstractEndpoint::class);
         $this->request = new FindBankRequest($endpoint);
     }
 

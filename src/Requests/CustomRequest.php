@@ -9,7 +9,6 @@ use Ex3mm\Dadata\Config\DadataConfig;
 use Ex3mm\Dadata\Exceptions\NetworkException;
 use Ex3mm\Dadata\Exceptions\ValidationException;
 use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Request builder для произвольных запросов к DaData API.
@@ -176,7 +175,6 @@ final class CustomRequest
         }
 
         try {
-            /** @var ResponseInterface $response */
             $response = $this->client->getClient()->request($this->method, $url, $options);
         } catch (GuzzleException $exception) {
             throw NetworkException::fromGuzzleException($exception);

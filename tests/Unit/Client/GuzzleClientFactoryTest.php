@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ex3mm\Dadata\Tests\Unit\Client;
 
+use Ex3mm\Dadata\Cache\InMemoryCache;
 use Ex3mm\Dadata\Client\GuzzleClientFactory;
 use Ex3mm\Dadata\Config\DadataConfig;
 use Ex3mm\Dadata\Tests\TestCase;
@@ -31,16 +32,6 @@ final class GuzzleClientFactoryTest extends TestCase
         // Arrange
         $apiKey    = 'test-api-key-12345';
         $secretKey = 'test-secret-key-67890';
-
-        $config = DadataConfig::fromArray([
-            'api_key'    => $apiKey,
-            'secret_key' => $secretKey,
-        ]);
-
-        $cache  = $this->createMock(CacheInterface::class);
-        $logger = new NullLogger();
-
-        $factory = new GuzzleClientFactory($config);
 
         // Создаём контейнер для перехвата запросов
         $container = [];
@@ -112,7 +103,7 @@ final class GuzzleClientFactoryTest extends TestCase
             'secret_key' => 'test-secret',
         ]);
 
-        $cache  = $this->createMock(CacheInterface::class);
+        $cache  = $this->createStub(CacheInterface::class);
         $logger = new NullLogger();
 
         $factory = new GuzzleClientFactory($config);
@@ -137,7 +128,7 @@ final class GuzzleClientFactoryTest extends TestCase
             'connect_timeout' => 5,
         ]);
 
-        $cache  = $this->createMock(CacheInterface::class);
+        $cache  = $this->createStub(CacheInterface::class);
         $logger = new NullLogger();
 
         $factory = new GuzzleClientFactory($config);
@@ -158,85 +149,40 @@ final class GuzzleClientFactoryTest extends TestCase
     }
 
     /**
-     * Проверяет, что middleware stack не содержит MaskApiKeyMiddleware.
-     *
-     * Validates Requirements: 1.3 - MaskApiKeyMiddleware удалён из HandlerStack
+     * Проверяет, что middleware созданного фабрикой клиента повторяют POST-запрос
+     * после HTTP 503 и кешируют успешный ответ без повторного обращения к handler.
      */
-    public function test_middleware_stack_does_not_contain_mask_api_key_middleware(): void
+    public function test_factory_stack_retries_and_caches_post_responses(): void
     {
-        // Arrange
-        $config = DadataConfig::fromArray([
-            'api_key'    => 'test-key',
-            'secret_key' => 'test-secret',
-        ]);
-
-        $cache  = $this->createMock(CacheInterface::class);
-        $logger = new NullLogger();
-
-        $factory = new GuzzleClientFactory($config);
-
-        // Act
-        $client = $factory->create($cache, $logger);
-
-        // Assert - проверяем через рефлексию, что handler stack не содержит MaskApiKeyMiddleware
-        $reflection     = new \ReflectionClass($client);
-        $configProperty = $reflection->getProperty('config');
-        $clientConfig   = $configProperty->getValue($client);
-        $handlerStack   = $clientConfig['handler'];
-
-        $this->assertInstanceOf(HandlerStack::class, $handlerStack);
-
-        // Получаем строковое представление stack для проверки
-        $stackString = (string) $handlerStack;
-
-        // Проверяем, что MaskApiKeyMiddleware отсутствует
-        $this->assertStringNotContainsString(
-            'MaskApiKeyMiddleware',
-            $stackString,
-            'HandlerStack should not contain MaskApiKeyMiddleware'
-        );
-    }
-
-    /**
-     * Проверяет, что middleware stack содержит только необходимые middleware.
-     *
-     * Validates Requirements: 5.7 - Минимальный необходимый middleware stack
-     */
-    public function test_middleware_stack_contains_only_essential_middleware(): void
-    {
-        // Arrange
         $config = DadataConfig::fromArray([
             'api_key'            => 'test-key',
             'secret_key'         => 'test-secret',
             'cache_enabled'      => true,
             'rate_limit_enabled' => true,
-            'rate_limit'         => 100,
+            'retry_attempts'     => 2,
+            'retry_delay'        => 1,
         ]);
+        $client = new GuzzleClientFactory($config)->create(new InMemoryCache(), new NullLogger());
+        $this->assertInstanceOf(Client::class, $client);
+        $stack = $client->getConfig('handler');
+        $this->assertInstanceOf(HandlerStack::class, $stack);
+        $mock = new MockHandler([
+            new Response(503),
+            new Response(200, [], '{"suggestions": []}'),
+        ]);
+        $stack->setHandler($mock);
+        $history = [];
+        $stack->push(Middleware::history($history));
 
-        $cache  = $this->createMock(CacheInterface::class);
-        $logger = new NullLogger();
+        $response = $client->request('POST', 'https://example.com/suggest', ['json' => ['query' => 'Москва']]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('MISS', $response->getHeaderLine('X-Kevinrob-Cache'));
+        $this->assertCount(2, $history);
 
-        $factory = new GuzzleClientFactory($config);
-
-        // Act
-        $client = $factory->create($cache, $logger);
-
-        // Assert
-        $reflection     = new \ReflectionClass($client);
-        $configProperty = $reflection->getProperty('config');
-        $clientConfig   = $configProperty->getValue($client);
-        $handlerStack   = $clientConfig['handler'];
-
-        $this->assertInstanceOf(HandlerStack::class, $handlerStack);
-
-        // Получаем строковое представление stack
-        $stackString = (string) $handlerStack;
-
-        // Проверяем наличие необходимых middleware
-        $this->assertStringContainsString('logging', $stackString, 'Should contain LoggingMiddleware');
-        $this->assertStringContainsString('retry', $stackString, 'Should contain RetryMiddleware');
-        $this->assertStringContainsString('rate_limiter', $stackString, 'Should contain RateLimiterMiddleware');
-        $this->assertStringContainsString('cache', $stackString, 'Should contain PostCacheMiddleware');
+        $cached = $client->request('POST', 'https://example.com/suggest', ['json' => ['query' => 'Москва']]);
+        $this->assertSame('HIT', $cached->getHeaderLine('X-Kevinrob-Cache'));
+        $this->assertSame((string) $response->getBody(), (string) $cached->getBody());
+        $this->assertCount(2, $history);
     }
 
     /**
@@ -252,7 +198,7 @@ final class GuzzleClientFactoryTest extends TestCase
             'secret_key' => 'test-secret',
         ]);
 
-        $cache  = $this->createMock(CacheInterface::class);
+        $cache  = $this->createStub(CacheInterface::class);
         $logger = new NullLogger();
 
         $factory = new GuzzleClientFactory($config);

@@ -25,7 +25,7 @@ final class DadataClientTest extends TestCase
     public function test_lazy_initialization_does_not_create_client_immediately(): void
     {
         $config = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache  = $this->createMock(CacheInterface::class);
+        $cache  = $this->createStub(CacheInterface::class);
         $logger = new NullLogger();
 
         // Используем реальную фабрику - клиент не должен быть создан при инициализации
@@ -43,7 +43,7 @@ final class DadataClientTest extends TestCase
     public function test_get_client_creates_http_client_on_first_call(): void
     {
         $config = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache  = $this->createMock(CacheInterface::class);
+        $cache  = $this->createStub(CacheInterface::class);
         $logger = new NullLogger();
 
         // Используем реальную фабрику
@@ -63,7 +63,7 @@ final class DadataClientTest extends TestCase
     public function test_suggest_address_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -77,7 +77,7 @@ final class DadataClientTest extends TestCase
     public function test_custom_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -91,7 +91,7 @@ final class DadataClientTest extends TestCase
     public function test_clean_address_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -105,7 +105,7 @@ final class DadataClientTest extends TestCase
     public function test_suggest_bank_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -119,7 +119,7 @@ final class DadataClientTest extends TestCase
     public function test_suggest_party_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -133,7 +133,7 @@ final class DadataClientTest extends TestCase
     public function test_find_affiliated_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -147,7 +147,7 @@ final class DadataClientTest extends TestCase
     public function test_find_bank_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 
@@ -161,7 +161,7 @@ final class DadataClientTest extends TestCase
     public function test_find_party_returns_request_builder(): void
     {
         $config  = DadataConfig::fromArray(['api_key' => 'test', 'secret_key' => 'test']);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
 

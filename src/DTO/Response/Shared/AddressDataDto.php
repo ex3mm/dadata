@@ -437,14 +437,6 @@ final readonly class AddressDataDto
     }
 
     /**
-     * @param array<string, mixed> $data
-     */
-    private static function extractArray(array $data, string $key): mixed
-    {
-        return isset($data[$key]) && is_array($data[$key]) ? $data[$key] : null;
-    }
-
-    /**
      * @return array<string, mixed>
      */
     public function toArray(): array

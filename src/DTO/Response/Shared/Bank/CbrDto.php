@@ -11,6 +11,9 @@ use Ex3mm\Dadata\DTO\Response\Shared\AddressValueDto;
  */
 final readonly class CbrDto
 {
+    /**
+     * @param list<string>|null $swifts
+     */
     public function __construct(
         public ?BankOpfDto $opf,
         public ?BankNameDto $name,
@@ -72,7 +75,7 @@ final readonly class CbrDto
 
         $swifts = null;
         if (isset($data['swifts']) && is_array($data['swifts'])) {
-            $swifts = array_filter($data['swifts'], fn ($item) => is_string($item));
+            $swifts = array_filter($data['swifts'], is_string(...));
             $swifts = $swifts !== [] ? array_values($swifts) : null;
         }
 

@@ -24,7 +24,7 @@ final class SuggestBankEndpointTest extends TestCase
             'secret_key'           => 'test',
             'base_url_suggestions' => 'https://suggestions.dadata.ru',
         ]);
-        $cache   = $this->createMock(CacheInterface::class);
+        $cache   = $this->createStub(CacheInterface::class);
         $logger  = new NullLogger();
         $factory = new GuzzleClientFactory($config);
         $client  = new DadataClient($config, $factory, $logger, $cache);
