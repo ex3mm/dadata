@@ -5,15 +5,15 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-## [2.3.0] - 2026-11-08
+## [2.3.0] - 2026-11-18
 
 ### Добавлено
-- Поддержка Guzzle 8.0.1+ наряду с Guzzle 7.15.2+.
+- Поддержка Guzzle 8.5.2+ наряду с Guzzle 7.16.3+.
 - Проверки совместимости обработки ошибок и middleware, CI для обеих веток Guzzle.
 
 ### Исправлено
 - Retry учитывает сетевые исключения Guzzle 8 и отсутствие `getResponse()` у базового `RequestException`.
-- Минимальная версия Guzzle 7 повышена до 7.15.2 для исключения известных CVE.
+- Минимальные версии Guzzle обновлены до 7.16.3 и 8.5.2.
 
 ## [2.2.0] - 2026-05-04
 
@@ -73,3 +73,4 @@
 [2.0.0]: https://github.com/ex3mm/dadata/releases/tag/v2.0.0
 [2.1.0]: https://github.com/ex3mm/dadata/releases/tag/v2.1.0
 [2.2.0]: https://github.com/ex3mm/dadata/releases/tag/v2.2.0
+[2.3.0]: https://github.com/ex3mm/dadata/releases/tag/v2.3.0
