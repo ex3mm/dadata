@@ -62,6 +62,18 @@ final class FindAffiliatedRequestTest extends TestCase
         $this->callPrivateMethod($this->request, 'validate');
     }
 
+    public function test_validate_throws_for_count_greater_than_300(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Количество результатов не может быть больше 300');
+
+        $this->request
+            ->query('7736207543')
+            ->count(301);
+
+        $this->callPrivateMethod($this->request, 'validate');
+    }
+
     public function test_validate_passes_for_valid_query(): void
     {
         $this->request->query('7736207543');

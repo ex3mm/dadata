@@ -5,6 +5,13 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [3.0.0] - 2026-11-18
+
+- Добавлены отдельные rate limit для Suggestions и Cleaner API.
+- Добавлена проверка максимального значения `count` в `findAffiliated`.
+- Обновлена документация по `okved_type`, лимитам запросов и конфигурации пакета.
+- Обновлена конфигурация PHPUnit и GitHub Actions.
+
 ## [2.4.0] - 2026-11-18
 
 ### Добавлено
@@ -82,3 +89,4 @@
 [2.2.0]: https://github.com/ex3mm/dadata/releases/tag/v2.2.0
 [2.3.0]: https://github.com/ex3mm/dadata/releases/tag/v2.3.0
 [2.4.0]: https://github.com/ex3mm/dadata/releases/tag/v2.4.0
+[3.0.0]: https://github.com/ex3mm/dadata/releases/tag/v3.0.0

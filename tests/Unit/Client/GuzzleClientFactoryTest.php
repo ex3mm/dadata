@@ -7,6 +7,7 @@ namespace Ex3mm\Dadata\Tests\Unit\Client;
 use Ex3mm\Dadata\Cache\InMemoryCache;
 use Ex3mm\Dadata\Client\GuzzleClientFactory;
 use Ex3mm\Dadata\Config\DadataConfig;
+use Ex3mm\Dadata\Exceptions\RateLimitException;
 use Ex3mm\Dadata\Tests\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -176,13 +177,80 @@ final class GuzzleClientFactoryTest extends TestCase
 
         $response = $client->request('POST', 'https://example.com/suggest', ['json' => ['query' => 'Москва']]);
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('MISS', $response->getHeaderLine('X-Kevinrob-Cache'));
+        $this->assertSame('MISS', $response->getHeaderLine('X-Dadata-Cache'));
         $this->assertCount(2, $history);
 
         $cached = $client->request('POST', 'https://example.com/suggest', ['json' => ['query' => 'Москва']]);
-        $this->assertSame('HIT', $cached->getHeaderLine('X-Kevinrob-Cache'));
+        $this->assertSame('HIT', $cached->getHeaderLine('X-Dadata-Cache'));
         $this->assertSame((string) $response->getBody(), (string) $cached->getBody());
         $this->assertCount(2, $history);
+    }
+
+    public function test_factory_uses_independent_limits_for_suggestions_and_cleaner(): void
+    {
+        $config = DadataConfig::fromArray([
+            'api_key'                => 'test-key',
+            'secret_key'             => 'test-secret',
+            'cache_enabled'          => false,
+            'retry_attempts'         => 0,
+            'rate_limit_suggestions' => 1,
+            'rate_limit_cleaner'     => 1,
+        ]);
+        $client = (new GuzzleClientFactory($config))->create(new InMemoryCache(), new NullLogger());
+        $stack  = $client->getConfig('handler');
+        $this->assertInstanceOf(HandlerStack::class, $stack);
+        $stack->setHandler(new MockHandler([
+            new Response(200, [], '{"suggestions": []}'),
+            new Response(200, [], '[]'),
+        ]));
+
+        $suggestionsResponse = $client->request(
+            'POST',
+            'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address',
+        );
+        $cleanerResponse = $client->request(
+            'POST',
+            'https://cleaner.dadata.ru/api/v1/clean/address',
+        );
+
+        $this->assertSame(200, $suggestionsResponse->getStatusCode());
+        $this->assertSame(200, $cleanerResponse->getStatusCode());
+
+        $this->expectException(RateLimitException::class);
+
+        $client->request(
+            'POST',
+            'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address',
+        );
+    }
+
+    public function test_factory_applies_cleaner_limit(): void
+    {
+        $config = DadataConfig::fromArray([
+            'api_key'                => 'test-key',
+            'secret_key'             => 'test-secret',
+            'cache_enabled'          => false,
+            'retry_attempts'         => 0,
+            'rate_limit_suggestions' => 2,
+            'rate_limit_cleaner'     => 1,
+        ]);
+        $client = (new GuzzleClientFactory($config))->create(new InMemoryCache(), new NullLogger());
+        $stack  = $client->getConfig('handler');
+        $this->assertInstanceOf(HandlerStack::class, $stack);
+        $stack->setHandler(new MockHandler([new Response(200, [], '[]')]));
+
+        $response = $client->request(
+            'POST',
+            'https://cleaner.dadata.ru/api/v1/clean/address',
+        );
+        $this->assertSame(200, $response->getStatusCode());
+
+        $this->expectException(RateLimitException::class);
+
+        $client->request(
+            'POST',
+            'https://cleaner.dadata.ru/api/v1/clean/address',
+        );
     }
 
     /**

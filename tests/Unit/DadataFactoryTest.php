@@ -22,19 +22,20 @@ final class DadataFactoryTest extends TestCase
     public function testCreateClientWithCustomOptions(): void
     {
         $options = [
-            'base_url_cleaner'     => 'https://custom-cleaner.example.com',
-            'base_url_suggestions' => 'https://custom-suggestions.example.com',
-            'connect_timeout'      => 5,
-            'timeout'              => 15,
-            'cache_enabled'        => false,
-            'cache_ttl'            => 7200,
-            'log_level'            => 'debug',
-            'log_request_body'     => true,
-            'log_response_body'    => true,
-            'rate_limit_enabled'   => false,
-            'rate_limit'           => 10,
-            'retry_attempts'       => 5,
-            'retry_delay'          => 200,
+            'base_url_cleaner'       => 'https://custom-cleaner.example.com',
+            'base_url_suggestions'   => 'https://custom-suggestions.example.com',
+            'connect_timeout'        => 5,
+            'timeout'                => 15,
+            'cache_enabled'          => false,
+            'cache_ttl'              => 7200,
+            'log_level'              => 'debug',
+            'log_request_body'       => true,
+            'log_response_body'      => true,
+            'rate_limit_enabled'     => false,
+            'rate_limit_suggestions' => 25,
+            'rate_limit_cleaner'     => 15,
+            'retry_attempts'         => 5,
+            'retry_delay'            => 200,
         ];
 
         $client = DadataFactory::create('test-api-key', 'test-secret-key', $options);

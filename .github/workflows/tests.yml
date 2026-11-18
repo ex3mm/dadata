@@ -16,7 +16,7 @@ jobs:
         php: ['8.3', '8.4', '8.5']
         guzzle: ['7.16.3', '^7.16.3', '8.5.2', '^8.5.2']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -50,7 +50,7 @@ jobs:
             testbench: '^11.3'
             illuminate: '^13.0'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -78,7 +78,7 @@ jobs:
       matrix:
         check: [phpstan, rector, 'cs:check']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'

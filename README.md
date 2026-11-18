@@ -341,6 +341,8 @@ $response = $client->suggestParty()
 
 Возвращает `CollectionResponse<PartyResponseDto>`.
 
+`PartyDataDto::$okvedType` — версия справочника ОКВЭД: `2001` или `2014`.
+
 ---
 
 ### `findParty()`
@@ -393,7 +395,7 @@ $response = $client->findAffiliated()
 | Метод | Описание |
 |---|---|
 | `query(string)` | ИНН учредителя или руководителя (обязательный) |
-| `count(int)` | Количество результатов (фактический предел определяется API DaData) |
+| `count(int)` | Количество результатов (макс. 300) |
 | `scope(array)` | `AffiliatedScope::FOUNDERS` и/или `AffiliatedScope::MANAGERS` |
 
 Возвращает `CollectionResponse<AffiliatedPartyResponseDto>`.
@@ -599,7 +601,8 @@ $rawBody = $client->custom()
 | `DADATA_LOG_RESPONSE_BODY` | `false` | Логировать тело ответа |
 | `DADATA_LOG_CHANNEL` | `null` | Канал логирования Laravel |
 | `DADATA_RATE_LIMIT_ENABLED` | `true` | Включить rate limit |
-| `DADATA_RATE_LIMIT` | `20` | Лимит запросов в секунду |
+| `DADATA_RATE_LIMIT_SUGGESTIONS` | `30` | Лимит запросов Suggestions в секунду |
+| `DADATA_RATE_LIMIT_CLEANER` | `20` | Лимит запросов Cleaner в секунду |
 
 ### Standalone
 
@@ -608,15 +611,16 @@ $client = DadataFactory::create(
     apiKey: 'your_api_key',
     secretKey: 'your_secret_key',
     options: [
-        'timeout'            => 10,
-        'retry_attempts'     => 2,
-        'retry_delay'        => 150,
-        'cache_enabled'      => true,
-        'cache_ttl'          => 600,
-        'rate_limit_enabled' => true,
-        'rate_limit'         => 15,
-        'log_request_body'   => false,
-        'log_response_body'  => false,
+        'timeout'                => 10,
+        'retry_attempts'         => 2,
+        'retry_delay'            => 150,
+        'cache_enabled'          => true,
+        'cache_ttl'              => 600,
+        'rate_limit_enabled'     => true,
+        'rate_limit_suggestions' => 30,
+        'rate_limit_cleaner'     => 20,
+        'log_request_body'       => false,
+        'log_response_body'      => false,
     ]
 );
 ```
@@ -639,7 +643,7 @@ $client = DadataFactory::create(
 
 ### Логирование
 
-Логируется метод, URL, статус ответа и длительность. Тело запроса и ответа пишется только при включённых флагах `log_request_body` / `log_response_body`. При кешировании в логах виден служебный заголовок `X-Kevinrob-Cache: HIT/MISS` (историческое имя заголовка, не означает зависимость от пакета Kevinrob).
+Логируется метод, URL, статус ответа и длительность. Тело запроса и ответа пишется только при включённых флагах `log_request_body` / `log_response_body`. При кешировании в логах виден служебный заголовок `X-Dadata-Cache: HIT/MISS`.
 
 ---
 

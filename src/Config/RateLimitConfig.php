@@ -11,18 +11,21 @@ use Ex3mm\Dadata\Exceptions\ConfigurationException;
  *
  * @phpstan-type RateLimitConfigArray array{
  *   rate_limit_enabled?: bool,
- *   rate_limit?: positive-int,
+ *   rate_limit_suggestions?: positive-int,
+ *   rate_limit_cleaner?: positive-int,
  * }
  */
 final readonly class RateLimitConfig
 {
     /**
      * @param bool $enabled Включить ограничение частоты запросов
-     * @param positive-int $limit Максимальное количество запросов в секунду
+     * @param positive-int $suggestionsLimit Лимит запросов к Suggestions API
+     * @param positive-int $cleanerLimit Лимит запросов к Cleaner API
      */
     public function __construct(
         public bool $enabled = true,
-        public int $limit = 20,
+        public int $suggestionsLimit = 30,
+        public int $cleanerLimit = 20,
     ) {
     }
 
@@ -35,16 +38,22 @@ final readonly class RateLimitConfig
      */
     public static function fromArray(array $config): self
     {
-        $enabled = $config['rate_limit_enabled'] ?? true;
-        $limit   = $config['rate_limit']         ?? 20;
+        $enabled          = $config['rate_limit_enabled']     ?? true;
+        $suggestionsLimit = $config['rate_limit_suggestions'] ?? 30;
+        $cleanerLimit     = $config['rate_limit_cleaner']     ?? 20;
 
-        if ($limit <= 0) {
-            throw new ConfigurationException('Лимит запросов (rate_limit) должен быть положительным числом');
+        if ($suggestionsLimit <= 0) {
+            throw new ConfigurationException('Лимит запросов Suggestions (rate_limit_suggestions) должен быть положительным числом');
+        }
+
+        if ($cleanerLimit <= 0) {
+            throw new ConfigurationException('Лимит запросов Cleaner (rate_limit_cleaner) должен быть положительным числом');
         }
 
         return new self(
             enabled: $enabled,
-            limit: $limit,
+            suggestionsLimit: $suggestionsLimit,
+            cleanerLimit: $cleanerLimit,
         );
     }
 }
