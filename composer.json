@@ -1,6 +1,6 @@
 {
     "name": "ex3mm/dadata",
-    "description": "DaData.ru API client for Laravel and standalone PHP 8",
+    "description": "DaData.ru API client for Laravel and standalone PHP",
     "type": "library",
     "version": "2.4.0",
     "license": "MIT",
