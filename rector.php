@@ -12,9 +12,9 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
-    ->withPhpSets(php85: true)
+    ->withPhpSets(php83: true)
     ->withSets([
-        LevelSetList::UP_TO_PHP_85,
+        LevelSetList::UP_TO_PHP_83,
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
     ])

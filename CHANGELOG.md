@@ -5,6 +5,13 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [2.4.0] - 2026-11-18
+
+### Добавлено
+- Поддержка PHP 8.3 и 8.4 с сохранением поддержки PHP 8.5.
+- Поддержка Laravel 13 с сохранением совместимости с Laravel 12.
+- CI-проверки поддерживаемых версий PHP, Laravel и Guzzle.
+
 ## [2.3.0] - 2026-11-18
 
 ### Добавлено
@@ -74,3 +81,4 @@
 [2.1.0]: https://github.com/ex3mm/dadata/releases/tag/v2.1.0
 [2.2.0]: https://github.com/ex3mm/dadata/releases/tag/v2.2.0
 [2.3.0]: https://github.com/ex3mm/dadata/releases/tag/v2.3.0
+[2.4.0]: https://github.com/ex3mm/dadata/releases/tag/v2.4.0

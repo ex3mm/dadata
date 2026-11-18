@@ -58,6 +58,7 @@ final class LoggingMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
+                /** @phpstan-ignore argument.type (Guzzle resolves HTTP handler promises with a PSR-7 response.) */
                 function (ResponseInterface $response) use ($startTime, $request): ResponseInterface {
                     $duration = round((microtime(true) - $startTime) * 1000, 2);
 
@@ -99,6 +100,7 @@ final class LoggingMiddleware
 
                     return $response;
                 },
+                /** @phpstan-ignore argument.type (Guzzle rejects HTTP handler promises with an exception.) */
                 function (\Throwable $exception) use ($startTime, $request): never {
                     $duration = round((microtime(true) - $startTime) * 1000, 2);
 

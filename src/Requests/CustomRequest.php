@@ -175,6 +175,7 @@ final class CustomRequest
         }
 
         try {
+            /** @phpstan-ignore argument.type (The request builder creates valid Guzzle options through its typed methods.) */
             $response = $this->client->getClient()->request($this->method, $url, $options);
         } catch (GuzzleException $exception) {
             throw NetworkException::fromGuzzleException($exception);
