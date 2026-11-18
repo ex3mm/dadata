@@ -1,6 +1,6 @@
 # ex3mm/dadata
 
-PHP-клиент для DaData API. Поддерживает Laravel 12+ и standalone PHP 8.5+.
+PHP-клиент для DaData API. Поддерживает Laravel 12 и 13, а также standalone PHP 8.3+.
 
 ## Возможности
 
@@ -11,8 +11,8 @@ PHP-клиент для DaData API. Поддерживает Laravel 12+ и stan
 
 ## Требования
 
-- PHP 8.5+
-- Laravel 12+ (для Laravel-интеграции)
+- PHP 8.3+
+- Laravel 12 или 13 (для Laravel-интеграции)
 
 ## Установка
 

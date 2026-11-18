@@ -162,7 +162,7 @@ final class GuzzleClientFactoryTest extends TestCase
             'retry_attempts'     => 2,
             'retry_delay'        => 1,
         ]);
-        $client = new GuzzleClientFactory($config)->create(new InMemoryCache(), new NullLogger());
+        $client = (new GuzzleClientFactory($config))->create(new InMemoryCache(), new NullLogger());
         $this->assertInstanceOf(Client::class, $client);
         $stack = $client->getConfig('handler');
         $this->assertInstanceOf(HandlerStack::class, $stack);

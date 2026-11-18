@@ -63,7 +63,6 @@ final class PostCacheMiddleware
                         body: $cachedData['body']
                     );
 
-                    /** @var PromiseInterface */
                     return \GuzzleHttp\Promise\Create::promiseFor($response);
                 }
             } catch (\Throwable $e) {
@@ -74,6 +73,7 @@ final class PostCacheMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
+                /** @phpstan-ignore argument.type (Guzzle resolves HTTP handler promises with a PSR-7 response.) */
                 function (ResponseInterface $response) use ($cacheKey): ResponseInterface {
                     $statusCode = $response->getStatusCode();
 

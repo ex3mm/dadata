@@ -55,6 +55,7 @@ final class RetryMiddleware
             $promise = $handler($request, $options);
 
             return $promise->then(
+                /** @phpstan-ignore argument.type (Guzzle resolves HTTP handler promises with a PSR-7 response.) */
                 function (ResponseInterface $response) use ($handler, $request, $options, $attempt): ResponseInterface|PromiseInterface {
                     if ($this->shouldRetry($response) && $attempt < $this->maxAttempts) {
                         $this->logger->warning(
@@ -70,6 +71,7 @@ final class RetryMiddleware
 
                     return $response;
                 },
+                /** @phpstan-ignore argument.type (Guzzle rejects HTTP handler promises with an exception.) */
                 function (\Throwable $exception) use ($handler, $request, $options, $attempt): PromiseInterface {
                     if ($this->shouldRetryException($exception) && $attempt < $this->maxAttempts) {
                         $this->logger->warning(
