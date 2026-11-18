@@ -66,7 +66,7 @@ final class RateLimiterMiddleware
      */
     private function supports(RequestInterface $request): bool
     {
-        if ($this->baseUri === null) {
+        if (!$this->baseUri instanceof Uri) {
             return true;
         }
 
